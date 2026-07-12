@@ -1,0 +1,40 @@
+{
+    "name": "Melat Tekie",
+    "title": "Full-Stack Developer, Frontend Engineer",
+    "bio": "",
+    "skills": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Astro",
+        "Tailwind CSS"
+      ],
+    "projects": [
+    {
+      "id": "catering-platform",
+      "name": "Catering Platform",
+      "description": "A Next.js ordering site for a local restaurant, with a live headcount calculator and inquiry system.",
+      "techStack": ["Next.js", "Tailwind CSS", "Supabase"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "portfolio-agency",
+      "name": "Portfolio Engine",
+      "description": "A dynamic Astro-based portfolio system that renders developer profiles from JSON data.",
+      "techStack": ["Astro", "TypeScript"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    }
+  ],
+    "contact":  {
+      "email": "mhaile2728@gmail.com",
+      "phone": "",
+      "linkedin": "",
+      "github": "https://github.com/MelatTekie",
+      "location": "Dallas, TX"
+    }
+  }

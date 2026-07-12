@@ -1,0 +1,18 @@
+{
+    "name": "Resource",
+    "title": "Music Producer",
+    "bio": "",
+    "skills": [],
+    "projects": [],
+    "contact": {
+      "email": "",
+      "phone": "",
+      "linkedin": "",
+      "github": "",
+      "location": ""
+    },
+    "media": {
+      "featuredTrack": "",
+      "tracks": []
+    }
+  }
