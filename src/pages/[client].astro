@@ -1,0 +1,47 @@
+---
+export async function getStaticPaths() {
+  const profiles = import.meta.glob("../data/*.json", { eager: true });
+
+  return Object.entries(profiles).map(([path, data]) => {
+    const slug = path.split("/").pop().replace(".json", "");
+    return {
+      params: { client: slug },
+      props: { profile: data.default },
+    };
+  });
+}
+
+const { profile } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{profile.name} — {profile.title}</title>
+  </head>
+  <body>
+    <main>
+      <h1>{profile.name}</h1>
+      <h2>{profile.title}</h2>
+      <p>{profile.bio}</p>
+
+      <section>
+        <h3>Skills</h3>
+        <ul>
+          {profile.skills.map((skill) => <li>{skill}</li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h3>Projects</h3>
+        {profile.projects.map((project) => (
+          <div>
+            <h4>{project.name}</h4>
+            <p>{project.description}</p>
+            <p>Tech: {project.techStack.join(", ")}</p>
+          </div>
+        ))}
+      </section>
+    </main>
+  </body>
+</html>
