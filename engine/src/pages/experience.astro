@@ -1,4 +1,5 @@
 ---
+import profileData from '../data/melat-tekie.json';
 ---
 <html lang="en">
   <head>
@@ -7,50 +8,637 @@
     <style>
       body { margin: 0; overflow: hidden; font-family: sans-serif; }
       #experience-container { width: 100vw; height: 100vh; }
+
+      #loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: #1a1410;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        transition: opacity 0.5s ease;
+      }
+      #loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #loading-overlay p {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 16px;
+        color: #e8c9a0;
+        letter-spacing: 0.05em;
+      }
+
+      #onboarding-hint {
+        position: absolute;
+        top: 110px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 10, 7, 0.85);
+        border: 1px solid rgba(255, 184, 119, 0.25);
+        border-radius: 20px;
+        padding: 8px 18px;
+        font-size: 12px;
+        color: #e8c9a0;
+        z-index: 15;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      #onboarding-hint.visible {
+        opacity: 1;
+      }
+
+      #site-header {
+        position: absolute;
+        top: 36px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 10;
+        pointer-events: none;
+      }
+      #site-header h1 {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 30px;
+        font-weight: 400;
+        color: #ffd9ad;
+        margin: 0 0 6px;
+      }
+      #site-header p {
+        font-size: 13px;
+        color: #c9b48d;
+        margin: 0;
+      }
+
       #chapter-nav {
         position: absolute;
         bottom: 24px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
-        gap: 12px;
+        gap: 6px;
         z-index: 10;
       }
       .chapter-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
         background: rgba(255, 255, 255, 0.1);
         color: #e8c9a0;
         border: 1px solid rgba(255, 184, 119, 0.3);
         border-radius: 20px;
-        padding: 8px 16px;
-        font-size: 12px;
+        padding: 8px 14px;
+        font-size: 11.5px;
+        white-space: nowrap;
         cursor: pointer;
+      }
+      .chapter-btn svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
       }
       .chapter-btn.active {
         background: #ffb877;
         color: #1a1410;
       }
+
+      #content-eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #ffbb70;
+        margin: 0 0 6px;
+      }
+
+      #content-panel {
+        position: absolute;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 440px;
+        max-height: 48vh;
+        overflow-y: auto;
+        text-align: left;
+        color: #f3e4c8;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        z-index: 10;
+        padding: 22px 26px;
+        background: rgba(15, 10, 7, 0.92);
+        border: 1px solid rgba(255, 184, 119, 0.2);
+        border-radius: 10px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      #content-panel.visible {
+        opacity: 1;
+      }
+      #content-title {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 19px;
+        font-weight: 400;
+        margin: 0 0 3px;
+        color: #ffd9ad;
+      }
+      #content-subtitle {
+        font-size: 11px;
+        color: #c9b48d;
+        margin: 0 0 18px;
+      }
+
+      .about-text {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 14px;
+        color: #f0dfc0;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .skills-text {
+        font-size: 13px;
+        color: #f0dfc0;
+        line-height: 1.9;
+      }
+
+      .contact-intro {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-style: italic;
+        font-size: 13px;
+        color: #e3d2af;
+        margin: 0 0 16px;
+        line-height: 1.5;
+      }
+      .contact-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 184, 119, 0.15);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #f0dfc0;
+        font-size: 13px;
+        transition: border-color 0.25s ease, background 0.25s ease;
+      }
+      .contact-row:last-child {
+        margin-bottom: 0;
+      }
+      a.contact-row:hover {
+        border-color: rgba(255, 184, 119, 0.45);
+        background: rgba(255, 184, 119, 0.08);
+      }
+      .contact-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 184, 119, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .contact-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .simple-list { display: flex; flex-direction: column; gap: 10px; }
+      .simple-row { font-size: 13px; color: #f0dfc0; }
+      .simple-link {
+        font-size: 13px;
+        color: #ffd9ad;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 217, 173, 0.3);
+        padding-bottom: 1px;
+      }
+      .simple-link:hover {
+        border-bottom-color: #ffd9ad;
+      }
+
+      .journal-entry {
+        margin-bottom: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 217, 173, 0.1);
+      }
+      .journal-entry:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      .journal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+      }
+      .journal-header-text { flex: 1; }
+      .journal-toggle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 187, 112, 0.4);
+        color: #ffbb70;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        line-height: 1;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: transform 0.3s ease;
+      }
+      .journal-entry.expanded .journal-toggle {
+        transform: rotate(45deg);
+      }
+      .journal-dates {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: #ffbb70;
+        text-transform: uppercase;
+        margin: 0 0 4px;
+      }
+      .journal-heading {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 15px;
+        color: #ffd9ad;
+        margin: 0;
+      }
+      .journal-heading .company {
+        color: #f0dfc0;
+        font-style: italic;
+        font-weight: 400;
+      }
+      .journal-narrative-wrap {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
+      }
+      .journal-entry.expanded .journal-narrative-wrap {
+        max-height: 320px;
+        opacity: 1;
+        margin-top: 10px;
+      }
+      .journal-narrative {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 13px;
+        color: #e3d2af;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .journey-track {
+        position: relative;
+        display: flex;
+        gap: 12px;
+        padding-bottom: 10px;
+        margin-bottom: 18px;
+      }
+      .journey-year-chip {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 184, 119, 0.3);
+        color: #e8c9a0;
+        font-size: 11px;
+        font-family: sans-serif;
+        padding: 6px 12px;
+        border-radius: 16px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+      }
+      .journey-year-chip.active {
+        background: #ffb877;
+        color: #1a1410;
+        border-color: #ffb877;
+        font-weight: 600;
+      }
+      .journey-indicator {
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        background: #ffb877;
+        border-radius: 2px;
+        transition: left 0.35s ease, width 0.35s ease;
+      }
+      .journey-detail {
+        transition: opacity 0.25s ease;
+      }
     </style>
   </head>
   <body>
+    <div id="loading-overlay">
+      <p>Loading the experience...</p>
+    </div>
+    <header id="site-header">
+      <h1>Beyond My Resume</h1>
+      <p>Discover my work. Imagine what's possible for yours.</p>
+    </header>
+    <div id="onboarding-hint">Click any object, or use the nav below to explore</div>
+    <div id="content-panel">
+      <p id="content-eyebrow"></p>
+      <h2 id="content-title"></h2>
+      <p id="content-subtitle"></p>
+      <div id="content-body"></div>
+    </div>
     <div id="experience-container"></div>
     <nav id="chapter-nav">
-      <button class="chapter-btn" data-index="0">About</button>
-      <button class="chapter-btn" data-index="1">Experience</button>
-      <button class="chapter-btn" data-index="2">Skills</button>
-      <button class="chapter-btn" data-index="3">Projects</button>
-      <button class="chapter-btn" data-index="4">Contact</button>
+      <button class="chapter-btn" data-index="0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        About
+      </button>
+      <button class="chapter-btn" data-index="1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.5" fill="currentColor" stroke="none"/><path d="M5 19c3-5 4 3 7-2s3-6 7-9"/></svg>
+        The Journey
+      </button>
+      <button class="chapter-btn" data-index="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg>
+        Skills
+      </button>
+      <button class="chapter-btn" data-index="3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+        Projects
+      </button>
+      <button class="chapter-btn" data-index="4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        Contact
+      </button>
     </nav>
+
+    <script define:vars={{ profile: profileData }}>
+      window.__PROFILE__ = profile;
+    </script>
     <script>
-      import { initScene, addChapterMarkers } from '../experience/Scene.js';
+      import { initScene, addChapterMarkers, setupMarkerInteraction } from '../experience/Scene.js';
       import { createCameraController } from '../experience/CameraController.js';
       import { chapters } from '../experience/chapters.js';
 
+      const profile = window.__PROFILE__;
+
       const container = document.getElementById('experience-container');
-      const { scene, camera } = initScene(container);
-      addChapterMarkers(scene, chapters);
+      const { scene, camera, renderer } = initScene(container);
+      const markers = addChapterMarkers(scene, chapters);
       const cameraController = createCameraController(camera);
 
       let currentIndex = 0;
+
+      const contentPanel = document.getElementById('content-panel');
+      const contentEyebrow = document.getElementById('content-eyebrow');
+      const contentTitle = document.getElementById('content-title');
+      const contentSubtitle = document.getElementById('content-subtitle');
+      const contentBody = document.getElementById('content-body');
+
+      const chapterContent = {
+        about: {
+          eyebrow: 'About me',
+          title: profile.name,
+          subtitle: profile.title,
+          type: 'about',
+        },
+        experience: {
+          eyebrow: 'Career',
+          title: 'The Journey',
+          subtitle: 'Click a year to see what happened',
+          type: 'journey',
+          entries: profile.experience || [],
+        },
+        skills: {
+          eyebrow: 'What I work with',
+          title: 'Skills',
+          subtitle: 'Tools I reach for daily',
+          type: 'skills',
+        },
+        projects: {
+          eyebrow: 'Selected work',
+          title: 'Projects',
+          subtitle: 'A few things I\u2019ve built',
+          type: 'journal',
+          entries: profile.projects.map((p) => ({
+            role: p.name,
+            company: p.techStack.join(' \u00b7 '),
+            dates: '',
+            narrative: p.description,
+          })),
+        },
+        contact: {
+          eyebrow: 'Get in touch',
+          title: 'Contact',
+          subtitle: 'Ways to reach me',
+          type: 'contact',
+        },
+      };
+
+      function renderJourney(entries) {
+        const container = document.createElement('div');
+
+        const track = document.createElement('div');
+        track.className = 'journey-track';
+
+        const indicator = document.createElement('div');
+        indicator.className = 'journey-indicator';
+
+        const chips = entries.map((entry, i) => {
+          const chip = document.createElement('button');
+          chip.className = 'journey-year-chip';
+          chip.type = 'button';
+          chip.textContent = entry.dates.split(' ')[0];
+          chip.title = entry.dates;
+          track.appendChild(chip);
+          return chip;
+        });
+        track.appendChild(indicator);
+
+        const detail = document.createElement('div');
+        detail.className = 'journey-detail';
+
+        const detailDates = document.createElement('p');
+        detailDates.className = 'journal-dates';
+        const detailHeading = document.createElement('p');
+        detailHeading.className = 'journal-heading';
+        const detailNarrative = document.createElement('p');
+        detailNarrative.className = 'journal-narrative';
+
+        detail.appendChild(detailDates);
+        detail.appendChild(detailHeading);
+        detail.appendChild(detailNarrative);
+
+        function selectYear(index) {
+          chips.forEach((chip, i) => chip.classList.toggle('active', i === index));
+
+          const chip = chips[index];
+          indicator.style.left = chip.offsetLeft + 'px';
+          indicator.style.width = chip.offsetWidth + 'px';
+
+          const entry = entries[index];
+          detail.style.opacity = '0';
+          setTimeout(() => {
+            detailDates.textContent = entry.dates;
+            detailHeading.textContent = '';
+            detailHeading.textContent = entry.role;
+            if (entry.company) {
+              const companySpan = document.createElement('span');
+              companySpan.className = 'company';
+              companySpan.textContent = ' — ' + entry.company;
+              detailHeading.appendChild(companySpan);
+            }
+            detailNarrative.textContent = entry.narrative;
+            detail.style.opacity = '1';
+          }, 150);
+        }
+
+        chips.forEach((chip, i) => {
+          chip.addEventListener('click', () => selectYear(i));
+        });
+
+        container.appendChild(track);
+        container.appendChild(detail);
+        container.__selectDefault = () => selectYear(entries.length - 1);
+
+        return container;
+      }
+
+      function renderJournal(entries) {
+        const wrap = document.createElement('div');
+        entries.forEach((entry) => {
+          const item = document.createElement('div');
+          item.className = 'journal-entry';
+
+          const header = document.createElement('div');
+          header.className = 'journal-header';
+
+          const headerText = document.createElement('div');
+          headerText.className = 'journal-header-text';
+
+          if (entry.dates) {
+            const dates = document.createElement('p');
+            dates.className = 'journal-dates';
+            dates.textContent = entry.dates;
+            headerText.appendChild(dates);
+          }
+
+          const heading = document.createElement('p');
+          heading.className = 'journal-heading';
+          heading.textContent = entry.role;
+          if (entry.company) {
+            const companySpan = document.createElement('span');
+            companySpan.className = 'company';
+            companySpan.textContent = ' — ' + entry.company;
+            heading.appendChild(companySpan);
+          }
+          headerText.appendChild(heading);
+
+          const toggle = document.createElement('div');
+          toggle.className = 'journal-toggle';
+          toggle.textContent = '+';
+
+          header.appendChild(headerText);
+          header.appendChild(toggle);
+
+          const narrativeWrap = document.createElement('div');
+          narrativeWrap.className = 'journal-narrative-wrap';
+          const narrative = document.createElement('p');
+          narrative.className = 'journal-narrative';
+          narrative.textContent = entry.narrative;
+          narrativeWrap.appendChild(narrative);
+
+          header.addEventListener('click', () => {
+            item.classList.toggle('expanded');
+          });
+
+          item.appendChild(header);
+          item.appendChild(narrativeWrap);
+          wrap.appendChild(item);
+        });
+        return wrap;
+      }
+
+      function renderSkills() {
+        const wrap = document.createElement('p');
+        wrap.className = 'skills-text';
+        wrap.textContent = profile.skills.join(' \u00b7 ');
+        return wrap;
+      }
+
+      function renderAbout() {
+        const wrap = document.createElement('p');
+        wrap.className = 'about-text';
+        wrap.textContent = profile.bio || profile.title;
+        return wrap;
+      }
+
+      function renderContact() {
+        const wrap = document.createElement('div');
+
+        const intro = document.createElement('p');
+        intro.className = 'contact-intro';
+        intro.textContent = 'Always happy to talk about new roles or projects — reach out anytime.';
+        wrap.appendChild(intro);
+
+        if (profile.contact.email) {
+          const emailRow = document.createElement('a');
+          emailRow.className = 'contact-row';
+          emailRow.href = 'mailto:' + profile.contact.email;
+
+          const emailIcon = document.createElement('span');
+          emailIcon.className = 'contact-icon';
+          emailIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+
+          const emailText = document.createElement('span');
+          emailText.textContent = profile.contact.email;
+
+          emailRow.appendChild(emailIcon);
+          emailRow.appendChild(emailText);
+          wrap.appendChild(emailRow);
+        }
+
+        if (profile.contact.location) {
+          const locationRow = document.createElement('div');
+          locationRow.className = 'contact-row';
+
+          const locationIcon = document.createElement('span');
+          locationIcon.className = 'contact-icon';
+          locationIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.5 7-11a7 7 0 0 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+
+          const locationText = document.createElement('span');
+          locationText.textContent = profile.contact.location;
+
+          locationRow.appendChild(locationIcon);
+          locationRow.appendChild(locationText);
+          wrap.appendChild(locationRow);
+        }
+
+        return wrap;
+      }
+
+      function showContent(chapter) {
+        const content = chapterContent[chapter.id];
+        contentEyebrow.textContent = content.eyebrow || '';
+        contentTitle.textContent = content.title;
+        contentSubtitle.textContent = content.subtitle || '';
+        contentBody.innerHTML = '';
+
+        let rendered;
+        if (content.type === 'journal') rendered = renderJournal(content.entries);
+        else if (content.type === 'journey') rendered = renderJourney(content.entries);
+        else if (content.type === 'skills') rendered = renderSkills();
+        else if (content.type === 'about') rendered = renderAbout();
+        else if (content.type === 'contact') rendered = renderContact();
+
+        contentBody.appendChild(rendered);
+
+        if (content.type === 'journey' && rendered.__selectDefault) {
+          requestAnimationFrame(() => rendered.__selectDefault());
+        }
+
+        contentPanel.classList.add('visible');
+      }
+
+      function hideContent() {
+        contentPanel.classList.remove('visible');
+      }
 
       function updateNavUI() {
         document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
@@ -60,9 +648,39 @@
 
       function goToIndex(i) {
         currentIndex = Math.max(0, Math.min(chapters.length - 1, i));
-        cameraController.goTo(chapters[currentIndex]);
+        hideContent();
+        cameraController.goTo(chapters[currentIndex], 2, () => {
+          showContent(chapters[currentIndex]);
+        });
         updateNavUI();
       }
+
+      setupMarkerInteraction(camera, renderer, markers, goToIndex);
+
+      // Loading overlay — brief, masks initial scene setup
+      const loadingOverlay = document.getElementById('loading-overlay');
+      setTimeout(() => {
+        loadingOverlay.classList.add('hidden');
+      }, 400);
+
+      // Onboarding hint — shows briefly, dismisses on first interaction or after a few seconds
+      const onboardingHint = document.getElementById('onboarding-hint');
+      setTimeout(() => {
+        onboardingHint.classList.add('visible');
+      }, 900);
+
+      function dismissHint() {
+        onboardingHint.classList.remove('visible');
+      }
+      const hintTimeout = setTimeout(dismissHint, 7000);
+      renderer.domElement.addEventListener('click', () => {
+        clearTimeout(hintTimeout);
+        dismissHint();
+      }, { once: true });
+      window.addEventListener('keydown', () => {
+        clearTimeout(hintTimeout);
+        dismissHint();
+      }, { once: true });
 
       document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
         btn.addEventListener('click', () => goToIndex(i));
@@ -73,7 +691,9 @@
         if (e.key === 'ArrowLeft') goToIndex(currentIndex - 1);
       });
 
-      cameraController.goTo(chapters[0], 0);
+      cameraController.goTo(chapters[0], 0, () => {
+        showContent(chapters[0]);
+      });
       updateNavUI();
     </script>
   </body>

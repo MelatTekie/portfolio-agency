@@ -1,16 +1,73 @@
 {
     "name": "Melat Tekie",
     "title": "Full-Stack Developer, Frontend Engineer",
+    "bio": "Developer, designer, data person; in that order depending on the day. I like building things that actually get used.",
+"experience": [
+  {
+    "role": "B.S. Computer Science, Minor in Psychology",
+    "company": "Minnesota State University Moorhead",
+    "dates": "2014 – 2018",
+    "narrative": "I studied Computer Science with a minor in Psychology at Minnesota State University Moorhead, graduating Magna Cum Laude with a 3.69 GPA and making the Dean's List seven out of eight semesters. Outside the classroom, I mentored fourth graders in Scratch programming as a 'code sensei' and supervised a team of thirteen student workers on campus construction projects — early lessons in both teaching and leading."
+  },
+  {
+    "role": "Associate Software Engineer",
+    "company": "Sundog Interactive",
+    "dates": "2018 – 2019",
+    "narrative": "My first role out of school was building solutions on the Salesforce CRM platform using Apex and JavaScript. I learned the real rhythms of professional development here — daily standups, sprint planning, and managing support tickets through Jira."
+  },
+  {
+    "role": "Software Developer",
+    "company": "True|IT",
+    "dates": "2019",
+    "narrative": "I stretched into new territory here — developing iOS apps in Objective-C and Xcode, integrating an e-commerce site with Klaviyo through PHP, and building on Dynamics 365 CRM with C#, Java, and jQuery. I also connected ConnectWise with other ticketing systems via its SDK, my first real taste of systems integration."
+  },
+  {
+    "role": "Financial Reporting Analyst",
+    "company": "Razor Consulting Solutions (Microsoft Contractor)",
+    "dates": "2019 – 2021",
+    "narrative": "Contracting for Microsoft, I analyzed quarterly reports and built Macros to automate recurring processes. Working with SQL, SAS, Python, and Power BI on large datasets taught me how to turn raw numbers into decisions people could actually act on."
+  },
+  {
+    "role": "M.S. Business Analytics & Graduate Research Associate II",
+    "company": "University of Texas at Arlington",
+    "dates": "2021 – 2023",
+    "narrative": "While earning my Master's, I worked as a Graduate Research Associate — maintaining Sitecore CMS components, building Power BI and Python reporting dashboards, and optimizing site performance and SEO. I was honored with the Wayne Watts Fellowship for this work."
+  },
+  {
+    "role": "Web Design Analyst II",
+    "company": "Christus Health",
+    "dates": "2023 – Present",
+    "narrative": "Today, I sit between stakeholders and engineering — building custom SharePoint web parts, running QA on live applications, designing UX prototypes in Figma, and writing governance standards for Power Platform development. It's the role where design, data, and development finally come together."
+  }
+],
     "visualVariant": "particles",
-    "bio": "",
+   
     "skills": [
-        "JavaScript",
-        "TypeScript",
-        "React",
-        "Next.js",
-        "Astro",
-        "Tailwind CSS"
-      ],
+  "JavaScript",
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Astro",
+  "HTML",
+  "CSS",
+  "Tailwind CSS",
+  "C++",
+  "Python",
+  "R",
+  "PHP",
+  "SQL",
+  ".NET",
+  ".NET Core",
+  "Laravel",
+  "Salesforce",
+  "Dynamics 365",
+  "Sitecore",
+  "SharePoint / Power Platform",
+  "Power BI",
+  "Azure",
+  "Figma",
+  "Jira"
+],
     "projects": [
     {
       "id": "catering-platform",
