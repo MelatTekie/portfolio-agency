@@ -1,0 +1,92 @@
+---
+const { variant = "particles" } = Astro.props;
+---
+<div id="three-bg" data-variant={variant} style="position: fixed; inset: 0; z-index: -1;"></div>
+
+<script>
+  import * as THREE from "three";
+
+  const container = document.getElementById("three-bg");
+  const variant = container.dataset.variant;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  container.appendChild(renderer.domElement);
+
+  let points, lineSegments;
+
+  if (variant === "particles") {
+    // Nodes
+    const nodeCount = 120;
+    const positions = new Float32Array(nodeCount * 3);
+    for (let i = 0; i < nodeCount * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 8;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({ size: 0.035, color: 0x854f0b });
+    points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    // Connecting lines between nearby nodes — the "network" look
+    const linePositions = [];
+    for (let i = 0; i < nodeCount; i++) {
+      const ix = i * 3;
+      for (let j = i + 1; j < nodeCount; j++) {
+        const jx = j * 3;
+        const dx = positions[ix] - positions[jx];
+        const dy = positions[ix + 1] - positions[jx + 1];
+        const dz = positions[ix + 2] - positions[jx + 2];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dist < 1.1) {
+          linePositions.push(
+            positions[ix], positions[ix + 1], positions[ix + 2],
+            positions[jx], positions[jx + 1], positions[jx + 2]
+          );
+        }
+      }
+    }
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(linePositions, 3)
+    );
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x854f0b,
+      transparent: true,
+      opacity: 0.15,
+    });
+    lineSegments = new THREE.LineSegments(lineGeometry, lineMaterial);
+    scene.add(lineSegments);
+
+    camera.position.z = 5;
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (points) {
+      points.rotation.y += 0.0006;
+      points.rotation.x += 0.0002;
+    }
+    if (lineSegments) {
+      lineSegments.rotation.y += 0.0006;
+      lineSegments.rotation.x += 0.0002;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>

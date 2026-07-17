@@ -1,4 +1,6 @@
 ---
+import ThreeBackground from "../components/ThreeBackground.astro";
+
 export async function getStaticPaths() {
   const profiles = import.meta.glob("../data/*.json", { eager: true });
 
@@ -20,6 +22,7 @@ const { profile } = Astro.props;
     <title>{profile.name} — {profile.title}</title>
   </head>
   <body>
+    <ThreeBackground variant={profile.visualVariant} />
     <main>
       <h1>{profile.name}</h1>
       <h2>{profile.title}</h2>
