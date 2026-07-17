@@ -5,16 +5,76 @@
     <meta charset="UTF-8" />
     <title>Melat Tekie — Experience</title>
     <style>
-      body { margin: 0; overflow: hidden; }
+      body { margin: 0; overflow: hidden; font-family: sans-serif; }
       #experience-container { width: 100vw; height: 100vh; }
+      #chapter-nav {
+        position: absolute;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        z-index: 10;
+      }
+      .chapter-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e8c9a0;
+        border: 1px solid rgba(255, 184, 119, 0.3);
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .chapter-btn.active {
+        background: #ffb877;
+        color: #1a1410;
+      }
     </style>
   </head>
   <body>
     <div id="experience-container"></div>
+    <nav id="chapter-nav">
+      <button class="chapter-btn" data-index="0">About</button>
+      <button class="chapter-btn" data-index="1">Experience</button>
+      <button class="chapter-btn" data-index="2">Skills</button>
+      <button class="chapter-btn" data-index="3">Projects</button>
+      <button class="chapter-btn" data-index="4">Contact</button>
+    </nav>
     <script>
-      import { initScene } from '../experience/Scene.js';
+      import { initScene, addChapterMarkers } from '../experience/Scene.js';
+      import { createCameraController } from '../experience/CameraController.js';
+      import { chapters } from '../experience/chapters.js';
+
       const container = document.getElementById('experience-container');
-      initScene(container);
+      const { scene, camera } = initScene(container);
+      addChapterMarkers(scene, chapters);
+      const cameraController = createCameraController(camera);
+
+      let currentIndex = 0;
+
+      function updateNavUI() {
+        document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
+          btn.classList.toggle('active', i === currentIndex);
+        });
+      }
+
+      function goToIndex(i) {
+        currentIndex = Math.max(0, Math.min(chapters.length - 1, i));
+        cameraController.goTo(chapters[currentIndex]);
+        updateNavUI();
+      }
+
+      document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
+        btn.addEventListener('click', () => goToIndex(i));
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') goToIndex(currentIndex + 1);
+        if (e.key === 'ArrowLeft') goToIndex(currentIndex - 1);
+      });
+
+      cameraController.goTo(chapters[0], 0);
+      updateNavUI();
     </script>
   </body>
 </html>

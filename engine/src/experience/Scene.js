@@ -57,3 +57,17 @@ export function initScene(container) {
 
   return { scene, camera, renderer };
 }
+
+export function addChapterMarkers(scene, chapters) {
+  const markers = [];
+  chapters.forEach((chapter) => {
+    const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const material = new THREE.MeshStandardMaterial({ color: chapter.color });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.set(chapter.lookAt.x, chapter.lookAt.y, chapter.lookAt.z);
+    cube.castShadow = true;
+    scene.add(cube);
+    markers.push(cube);
+  });
+  return markers;
+}
