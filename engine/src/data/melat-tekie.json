@@ -1,6 +1,7 @@
 {
     "name": "Melat Tekie",
     "title": "Full-Stack Developer, Frontend Engineer",
+
     "bio": "Developer, designer, data person; in that order depending on the day. I like building things that actually get used.",
 "experience": [
   {
@@ -91,7 +92,7 @@
     "contact":  {
       "email": "mhaile2728@gmail.com",
       "phone": "",
-      "linkedin": "",
+      "linkedin": "https://www.linkedin.com/in/melat-tekie-9b03a6154",
       "github": "https://github.com/MelatTekie",
       "location": "Dallas, TX"
     }

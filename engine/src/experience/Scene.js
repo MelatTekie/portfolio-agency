@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import gsap from 'gsap';
 
 export function initScene(container) {
   const scene = new THREE.Scene();
@@ -193,6 +194,11 @@ function createAvatar() {
     shin.add(shoe);
   });
 
+  function spin() {
+    gsap.to(group.rotation, { y: group.rotation.y + Math.PI * 2, duration: 1, ease: 'power2.inOut' });
+  }
+  group.userData.onOpen = spin;
+
   return { group };
 }
 
@@ -254,7 +260,11 @@ function createStandingAvatar() {
     leg.add(sole);
   });
 
-  return { group };
+  function wave() {
+    gsap.to(armR.rotation, { z: -0.9, duration: 0.25, yoyo: true, repeat: 3, ease: 'sine.inOut' });
+  }
+
+  return { group, wave };
 }
 
 // ---------- Themed chapter markers ----------
@@ -280,6 +290,8 @@ function createJourneyMarker(color) {
   avatar.group.position.set(-0.35, 0, 0);
   group.add(avatar.group);
 
+  group.userData.onOpen = avatar.wave;
+
   return group;
 }
 
@@ -293,20 +305,25 @@ function createSkillsMarker(color) {
   body.castShadow = true;
   group.add(body);
 
+  // Lid hinges from the back edge, not the center, so it swings open realistically
+  const lidPivot = new THREE.Group();
+  lidPivot.position.set(0, 0.4, -0.185);
+  group.add(lidPivot);
+
   const lidGeo = new THREE.BoxGeometry(0.62, 0.08, 0.37);
   const lidMat = new THREE.MeshStandardMaterial({ color: 0x3a2a18 });
   const lid = new THREE.Mesh(lidGeo, lidMat);
-  lid.position.y = 0.4;
+  lid.position.set(0, 0, 0.185);
   lid.castShadow = true;
-  group.add(lid);
+  lidPivot.add(lid);
 
   const handleGeo = new THREE.TorusGeometry(0.16, 0.025, 8, 16, Math.PI);
   const handleMat = new THREE.MeshStandardMaterial({ color: 0x3a2a18 });
   const handle = new THREE.Mesh(handleGeo, handleMat);
-  handle.position.y = 0.44;
+  handle.position.set(0, 0.04, 0.185);
   handle.rotation.z = Math.PI;
   handle.castShadow = true;
-  group.add(handle);
+  lidPivot.add(handle);
 
   const latchGeo = new THREE.BoxGeometry(0.08, 0.08, 0.02);
   const latchMat = new THREE.MeshStandardMaterial({ color: 0xe8c9a0 });
@@ -315,6 +332,74 @@ function createSkillsMarker(color) {
   latch.castShadow = true;
   group.add(latch);
 
+  let opened = false;
+  let spawnedIcons = [];
+  const iconColors = [0xffb877, 0x7fb069, 0x6f9ceb, 0xffe08a, 0xff9d5c, 0xe8c9a0];
+
+  function open() {
+    if (opened) return;
+    opened = true;
+
+    gsap.to(lidPivot.rotation, { x: -1.9, duration: 0.6, ease: 'back.out(1.5)' });
+    latch.visible = false;
+
+    const count = 6;
+    spawnedIcons = [];
+    for (let i = 0; i < count; i++) {
+      const iconGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+      const iconMat = new THREE.MeshStandardMaterial({ color: iconColors[i % iconColors.length] });
+      const icon = new THREE.Mesh(iconGeo, iconMat);
+      icon.position.set(0, 0.4, 0);
+      icon.castShadow = true;
+      group.add(icon);
+      spawnedIcons.push(icon);
+
+      const angle = (i / count) * Math.PI * 2;
+      const radius = 0.4 + Math.random() * 0.3;
+      const targetX = Math.cos(angle) * radius;
+      const targetZ = Math.sin(angle) * radius;
+
+      gsap.to(icon.position, {
+        x: targetX,
+        z: targetZ,
+        y: 0.06,
+        duration: 0.9,
+        delay: 0.15 + i * 0.05,
+        ease: 'bounce.out',
+      });
+      gsap.to(icon.rotation, {
+        x: Math.random() * Math.PI * 2,
+        y: Math.random() * Math.PI * 2,
+        duration: 0.9,
+        delay: 0.15 + i * 0.05,
+      });
+    }
+  }
+
+  function close() {
+    if (!opened) return;
+    opened = false;
+
+    gsap.to(lidPivot.rotation, { x: 0, duration: 0.5, ease: 'power2.inOut' });
+    latch.visible = true;
+
+    spawnedIcons.forEach((icon) => {
+      gsap.to(icon.position, {
+        x: 0,
+        y: 0.4,
+        z: 0,
+        duration: 0.4,
+        ease: 'power1.in',
+        onComplete: () => {
+          group.remove(icon);
+        },
+      });
+    });
+    spawnedIcons = [];
+  }
+
+  group.userData.onOpen = open;
+  group.userData.onClose = close;
   return group;
 }
 
@@ -358,6 +443,19 @@ function createProjectsMarker(color) {
   art.rotation.x = -0.15;
   group.add(art);
 
+  function reveal() {
+    gsap.fromTo(
+      art.scale,
+      { x: 0.01, y: 0.01 },
+      { x: 1, y: 1, duration: 0.6, ease: 'back.out(2)' }
+    );
+  }
+  function hide() {
+    gsap.to(art.scale, { x: 0.01, y: 0.01, duration: 0.3, ease: 'power1.in' });
+  }
+  group.userData.onOpen = reveal;
+  group.userData.onClose = hide;
+
   group.scale.set(1.6, 1.6, 1.6);
   return group;
 }
@@ -381,6 +479,25 @@ function createContactMarker(color) {
   flap.scale.set(1, 0.5, 0.7);
   flap.castShadow = true;
   group.add(flap);
+
+  let opened = false;
+  const closedFlapX = Math.PI;
+  const openFlapX = Math.PI - 0.9;
+
+  function open() {
+    if (opened) return;
+    opened = true;
+    gsap.to(flap.rotation, { x: openFlapX, duration: 0.4, ease: 'power2.out' });
+  }
+
+  function close() {
+    if (!opened) return;
+    opened = false;
+    gsap.to(flap.rotation, { x: closedFlapX, duration: 0.4, ease: 'power2.inOut' });
+  }
+
+  group.userData.onOpen = open;
+  group.userData.onClose = close;
 
   group.scale.set(1.8, 1.8, 1.8);
   return group;
@@ -410,7 +527,7 @@ export function addChapterMarkers(scene, chapters) {
       mesh = new THREE.Mesh(geometry, material);
     }
 
-    if (chapter.id !== 'contact' && chapter.id !== 'experience') {
+    if (chapter.id === 'skills') {
       mesh.userData.spin = 0.0015;
       scene.userData.animated.push(mesh);
     }
@@ -431,13 +548,17 @@ export function setupMarkerInteraction(camera, renderer, markers, onMarkerClick)
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
-  function getHoveredIndex(event) {
+  function getIndexFromCoords(clientX, clientY) {
     const rect = renderer.domElement.getBoundingClientRect();
-    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(pointer, camera);
     const intersects = raycaster.intersectObjects(markers, true);
     return intersects.length > 0 ? intersects[0].object.userData.chapterIndex : undefined;
+  }
+
+  function getHoveredIndex(event) {
+    return getIndexFromCoords(event.clientX, event.clientY);
   }
 
   renderer.domElement.addEventListener('click', (event) => {
@@ -449,4 +570,21 @@ export function setupMarkerInteraction(camera, renderer, markers, onMarkerClick)
     const index = getHoveredIndex(event);
     renderer.domElement.style.cursor = index !== undefined ? 'pointer' : 'default';
   });
+
+  // Touch support — mobile/iPad have no hover, and rely on tap coordinates
+  // instead of mouse events. Prevent the default so the browser doesn't
+  // also fire a synthetic "click" afterward and double-trigger navigation.
+  renderer.domElement.addEventListener(
+    'touchend',
+    (event) => {
+      if (event.changedTouches.length === 0) return;
+      const touch = event.changedTouches[0];
+      const index = getIndexFromCoords(touch.clientX, touch.clientY);
+      if (index !== undefined) {
+        event.preventDefault();
+        onMarkerClick(index);
+      }
+    },
+    { passive: false }
+  );
 }

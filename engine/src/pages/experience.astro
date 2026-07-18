@@ -4,6 +4,7 @@ import profileData from '../data/melat-tekie.json';
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Melat Tekie — Experience</title>
     <style>
       body { margin: 0; overflow: hidden; font-family: sans-serif; }
@@ -79,6 +80,13 @@ import profileData from '../data/melat-tekie.json';
         display: flex;
         gap: 6px;
         z-index: 10;
+        max-width: calc(100vw - 24px);
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      #chapter-nav::-webkit-scrollbar {
+        display: none;
       }
       .chapter-btn {
         display: flex;
@@ -92,6 +100,7 @@ import profileData from '../data/melat-tekie.json';
         font-size: 11.5px;
         white-space: nowrap;
         cursor: pointer;
+        flex-shrink: 0;
       }
       .chapter-btn svg {
         width: 13px;
@@ -114,17 +123,15 @@ import profileData from '../data/melat-tekie.json';
       #content-panel {
         position: absolute;
         bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 440px;
-        max-height: 48vh;
-        overflow-y: auto;
+        left: 16px;
+        width: calc(100vw - 32px);
+        max-width: 400px;
         text-align: left;
         color: #f3e4c8;
         opacity: 0;
         transition: opacity 0.6s ease;
         z-index: 10;
-        padding: 22px 26px;
+        padding: 18px 22px;
         background: rgba(15, 10, 7, 0.92);
         border: 1px solid rgba(255, 184, 119, 0.2);
         border-radius: 10px;
@@ -145,6 +152,12 @@ import profileData from '../data/melat-tekie.json';
         color: #c9b48d;
         margin: 0 0 18px;
       }
+      #content-underline {
+        width: 40px;
+        height: 2px;
+        background: rgba(255, 184, 119, 0.4);
+        margin: -8px 0 20px;
+      }
 
       .about-text {
         font-family: Georgia, 'Times New Roman', serif;
@@ -160,49 +173,55 @@ import profileData from '../data/melat-tekie.json';
         line-height: 1.9;
       }
 
-      .contact-intro {
+      .contact-underline {
+        width: 40px;
+        height: 2px;
+        background: rgba(255, 184, 119, 0.4);
+        margin: 10px 0 20px;
+      }
+      .contact-columns {
+        display: flex;
+        margin-bottom: 18px;
+      }
+      .contact-col {
+        flex: 1;
+        text-align: center;
+        padding: 0 8px;
+        border-right: 1px solid rgba(255, 184, 119, 0.15);
+        text-decoration: none;
+        display: block;
+      }
+      .contact-col:last-child {
+        border-right: none;
+      }
+      .contact-col-icon {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .contact-col-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #f0dfc0;
+        margin: 0 0 4px;
+      }
+      .contact-col-value {
+        font-size: 11px;
+        color: #c9b48d;
+        margin: 0;
+        word-break: break-word;
+        line-height: 1.4;
+      }
+      .contact-footer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-top: 1px solid rgba(255, 184, 119, 0.15);
+        padding-top: 14px;
         font-family: Georgia, 'Times New Roman', serif;
         font-style: italic;
-        font-size: 13px;
-        color: #e3d2af;
-        margin: 0 0 16px;
-        line-height: 1.5;
-      }
-      .contact-row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 184, 119, 0.15);
-        border-radius: 10px;
-        padding: 12px 14px;
-        margin-bottom: 10px;
-        text-decoration: none;
-        color: #f0dfc0;
-        font-size: 13px;
-        transition: border-color 0.25s ease, background 0.25s ease;
-      }
-      .contact-row:last-child {
-        margin-bottom: 0;
-      }
-      a.contact-row:hover {
-        border-color: rgba(255, 184, 119, 0.45);
-        background: rgba(255, 184, 119, 0.08);
-      }
-      .contact-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: rgba(255, 184, 119, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        overflow: hidden;
-      }
-      .contact-icon svg {
-        width: 14px;
-        height: 14px;
+        font-size: 12px;
+        color: #c9b48d;
       }
 
       .simple-list { display: flex; flex-direction: column; gap: 10px; }
@@ -342,6 +361,7 @@ import profileData from '../data/melat-tekie.json';
       <p id="content-eyebrow"></p>
       <h2 id="content-title"></h2>
       <p id="content-subtitle"></p>
+      <div id="content-underline"></div>
       <div id="content-body"></div>
     </div>
     <div id="experience-container"></div>
@@ -384,11 +404,19 @@ import profileData from '../data/melat-tekie.json';
       const cameraController = createCameraController(camera);
 
       let currentIndex = 0;
+      let openIndex = null;
 
       const contentPanel = document.getElementById('content-panel');
       const contentEyebrow = document.getElementById('content-eyebrow');
       const contentTitle = document.getElementById('content-title');
       const contentSubtitle = document.getElementById('content-subtitle');
+      const contentUnderline = document.getElementById('content-underline');
+      Object.assign(contentUnderline.style, {
+        width: '40px',
+        height: '2px',
+        background: 'rgba(255, 184, 119, 0.4)',
+        margin: '0 0 20px',
+      });
       const contentBody = document.getElementById('content-body');
 
       const chapterContent = {
@@ -425,8 +453,8 @@ import profileData from '../data/melat-tekie.json';
         },
         contact: {
           eyebrow: 'Get in touch',
-          title: 'Contact',
-          subtitle: 'Ways to reach me',
+          title: 'I\u2019d love to hear from you.',
+          subtitle: '',
           type: 'contact',
         },
       };
@@ -446,6 +474,18 @@ import profileData from '../data/melat-tekie.json';
           chip.type = 'button';
           chip.textContent = entry.dates.split(' ')[0];
           chip.title = entry.dates;
+          Object.assign(chip.style, {
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 184, 119, 0.3)',
+            color: '#e8c9a0',
+            fontSize: '11px',
+            fontFamily: 'sans-serif',
+            padding: '6px 12px',
+            borderRadius: '16px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            transition: 'background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease',
+          });
           track.appendChild(chip);
           return chip;
         });
@@ -466,7 +506,18 @@ import profileData from '../data/melat-tekie.json';
         detail.appendChild(detailNarrative);
 
         function selectYear(index) {
-          chips.forEach((chip, i) => chip.classList.toggle('active', i === index));
+          chips.forEach((chip, i) => {
+            const isActive = i === index;
+            chip.classList.toggle('active', isActive);
+            Object.assign(chip.style, {
+              background: isActive ? '#ffb877' : 'rgba(255, 255, 255, 0.1)',
+              color: isActive ? '#1a1410' : '#e8c9a0',
+              borderColor: isActive ? '#ffb877' : 'rgba(255, 184, 119, 0.3)',
+              fontWeight: isActive ? '700' : '400',
+              boxShadow: isActive ? '0 0 10px 2px rgba(255, 184, 119, 0.5)' : 'none',
+              transform: isActive ? 'scale(1.05)' : 'scale(1)',
+            });
+          });
 
           const chip = chips[index];
           indicator.style.left = chip.offsetLeft + 'px';
@@ -495,6 +546,37 @@ import profileData from '../data/melat-tekie.json';
 
         container.appendChild(track);
         container.appendChild(detail);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = '/resume.pdf';
+        downloadLink.download = 'Melat-Tekie-Resume.pdf';
+        Object.assign(downloadLink.style, {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginTop: '18px',
+          padding: '9px 16px',
+          background: 'rgba(255, 184, 119, 0.12)',
+          border: '1px solid rgba(255, 184, 119, 0.35)',
+          borderRadius: '20px',
+          color: '#ffd9ad',
+          fontSize: '12px',
+          fontWeight: '600',
+          textDecoration: 'none',
+          transition: 'background 0.25s ease, border-color 0.25s ease',
+        });
+        downloadLink.innerHTML =
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffd9ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Download Resume</span>';
+        downloadLink.addEventListener('mouseenter', () => {
+          downloadLink.style.background = 'rgba(255, 184, 119, 0.22)';
+          downloadLink.style.borderColor = 'rgba(255, 184, 119, 0.6)';
+        });
+        downloadLink.addEventListener('mouseleave', () => {
+          downloadLink.style.background = 'rgba(255, 184, 119, 0.12)';
+          downloadLink.style.borderColor = 'rgba(255, 184, 119, 0.35)';
+        });
+        container.appendChild(downloadLink);
+
         container.__selectDefault = () => selectYear(entries.length - 1);
 
         return container;
@@ -521,7 +603,17 @@ import profileData from '../data/melat-tekie.json';
 
           const heading = document.createElement('p');
           heading.className = 'journal-heading';
-          heading.textContent = entry.role;
+          const folderIcon = document.createElement('span');
+          Object.assign(folderIcon.style, {
+            display: 'inline-flex',
+            verticalAlign: 'middle',
+            marginRight: '6px',
+          });
+          folderIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M3 7h6l2 2h10v10H3z"/></svg>';
+          heading.appendChild(folderIcon);
+          const headingText = document.createElement('span');
+          headingText.textContent = entry.role;
+          heading.appendChild(headingText);
           if (entry.company) {
             const companySpan = document.createElement('span');
             companySpan.className = 'company';
@@ -556,59 +648,170 @@ import profileData from '../data/melat-tekie.json';
       }
 
       function renderSkills() {
-        const wrap = document.createElement('p');
-        wrap.className = 'skills-text';
-        wrap.textContent = profile.skills.join(' \u00b7 ');
+        const wrap = document.createElement('div');
+        Object.assign(wrap.style, {
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+        });
+
+        profile.skills.forEach((skill) => {
+          const pill = document.createElement('span');
+          Object.assign(pill.style, {
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#1a1410',
+            background: '#ffd9ad',
+            padding: '6px 12px',
+            borderRadius: '14px',
+            whiteSpace: 'nowrap',
+          });
+          pill.textContent = skill;
+          wrap.appendChild(pill);
+        });
+
         return wrap;
       }
 
       function renderAbout() {
-        const wrap = document.createElement('p');
-        wrap.className = 'about-text';
-        wrap.textContent = profile.bio || profile.title;
+        const wrap = document.createElement('div');
+
+        const bio = document.createElement('p');
+        bio.className = 'about-text';
+        bio.textContent = profile.bio || profile.title;
+        wrap.appendChild(bio);
+
+        const footer = document.createElement('div');
+        Object.assign(footer.style, {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          borderTop: '1px solid rgba(255, 184, 119, 0.15)',
+          marginTop: '16px',
+          paddingTop: '14px',
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontStyle: 'italic',
+          fontSize: '12px',
+          color: '#c9b48d',
+        });
+        const locationLabel = profile.contact && profile.contact.location ? profile.contact.location : '';
+        footer.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.5 7-11a7 7 0 0 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Based in ' + locationLabel + '</span>';
+        wrap.appendChild(footer);
+
         return wrap;
       }
 
       function renderContact() {
         const wrap = document.createElement('div');
 
-        const intro = document.createElement('p');
-        intro.className = 'contact-intro';
-        intro.textContent = 'Always happy to talk about new roles or projects — reach out anytime.';
-        wrap.appendChild(intro);
+        const columns = document.createElement('div');
+        Object.assign(columns.style, {
+          display: 'flex',
+          marginBottom: '18px',
+        });
+        const items = [];
 
         if (profile.contact.email) {
-          const emailRow = document.createElement('a');
-          emailRow.className = 'contact-row';
-          emailRow.href = 'mailto:' + profile.contact.email;
-
-          const emailIcon = document.createElement('span');
-          emailIcon.className = 'contact-icon';
-          emailIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
-
-          const emailText = document.createElement('span');
-          emailText.textContent = profile.contact.email;
-
-          emailRow.appendChild(emailIcon);
-          emailRow.appendChild(emailText);
-          wrap.appendChild(emailRow);
+          items.push({
+            href: 'mailto:' + profile.contact.email,
+            label: 'Email',
+            value: 'Send a message',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+          });
         }
-
         if (profile.contact.location) {
-          const locationRow = document.createElement('div');
-          locationRow.className = 'contact-row';
-
-          const locationIcon = document.createElement('span');
-          locationIcon.className = 'contact-icon';
-          locationIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.5 7-11a7 7 0 0 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
-
-          const locationText = document.createElement('span');
-          locationText.textContent = profile.contact.location;
-
-          locationRow.appendChild(locationIcon);
-          locationRow.appendChild(locationText);
-          wrap.appendChild(locationRow);
+          items.push({
+            href: null,
+            label: 'Location',
+            value: profile.contact.location,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M12 21s7-6.5 7-11a7 7 0 0 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+          });
         }
+        if (profile.contact.linkedin) {
+          items.push({
+            href: profile.contact.linkedin,
+            label: 'LinkedIn',
+            value: 'Connect with me',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg>',
+          });
+        }
+        if (profile.contact.github) {
+          items.push({
+            href: profile.contact.github,
+            label: 'GitHub',
+            value: 'See my code',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9c0-1.1.35-1.8 1-2.4-3.35-.4-6.87-1.75-6.87-7.9 0-1.75.6-3.15 1.6-4.25-.15-.4-.7-2.05.15-4.25 0 0 1.3-.4 4.25 1.6a14.7 14.7 0 0 1 7.75 0c2.95-2 4.25-1.6 4.25-1.6.85 2.2.3 3.85.15 4.25 1 1.1 1.6 2.5 1.6 4.25 0 6.15-3.55 7.5-6.9 7.9.55.5 1 1.45 1 2.9V22"/></svg>',
+          });
+        }
+
+        items.forEach((item, index) => {
+          const col = document.createElement(item.href ? 'a' : 'div');
+          Object.assign(col.style, {
+            flex: '1',
+            textAlign: 'center',
+            padding: '0 8px',
+            textDecoration: 'none',
+            display: 'block',
+            color: '#f0dfc0',
+            borderRight: index < items.length - 1 ? '1px solid rgba(255, 184, 119, 0.15)' : 'none',
+          });
+          if (item.href) {
+            col.href = item.href;
+            if (item.href.startsWith('http')) {
+              col.target = '_blank';
+              col.rel = 'noopener noreferrer';
+            }
+          }
+
+          const iconWrap = document.createElement('div');
+          Object.assign(iconWrap.style, {
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '8px',
+          });
+          iconWrap.innerHTML = item.icon;
+
+          const label = document.createElement('p');
+          Object.assign(label.style, {
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#f0dfc0',
+            margin: '0 0 4px',
+          });
+          label.textContent = item.label;
+
+          const value = document.createElement('p');
+          Object.assign(value.style, {
+            fontSize: '11px',
+            color: '#c9b48d',
+            margin: '0',
+            wordBreak: 'break-word',
+            lineHeight: '1.4',
+          });
+          value.textContent = item.value;
+
+          col.appendChild(iconWrap);
+          col.appendChild(label);
+          col.appendChild(value);
+          columns.appendChild(col);
+        });
+
+        wrap.appendChild(columns);
+
+        const footer = document.createElement('div');
+        Object.assign(footer.style, {
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          borderTop: '1px solid rgba(255, 184, 119, 0.15)',
+          paddingTop: '14px',
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontStyle: 'italic',
+          fontSize: '12px',
+          color: '#c9b48d',
+        });
+        footer.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg><span>Let\u2019s create something amazing together.</span>';
+        wrap.appendChild(footer);
 
         return wrap;
       }
@@ -651,6 +854,18 @@ import profileData from '../data/melat-tekie.json';
         hideContent();
         cameraController.goTo(chapters[currentIndex], 2, () => {
           showContent(chapters[currentIndex]);
+
+          if (openIndex !== null && openIndex !== currentIndex && markers[openIndex].userData.onClose) {
+            markers[openIndex].userData.onClose();
+            openIndex = null;
+          }
+
+          if (markers[currentIndex].userData.onOpen) {
+            markers[currentIndex].userData.onOpen();
+            if (markers[currentIndex].userData.onClose) {
+              openIndex = currentIndex;
+            }
+          }
         });
         updateNavUI();
       }
@@ -663,24 +878,11 @@ import profileData from '../data/melat-tekie.json';
         loadingOverlay.classList.add('hidden');
       }, 400);
 
-      // Onboarding hint — shows briefly, dismisses on first interaction or after a few seconds
+      // Onboarding hint — fades in once and stays visible permanently
       const onboardingHint = document.getElementById('onboarding-hint');
       setTimeout(() => {
         onboardingHint.classList.add('visible');
       }, 900);
-
-      function dismissHint() {
-        onboardingHint.classList.remove('visible');
-      }
-      const hintTimeout = setTimeout(dismissHint, 7000);
-      renderer.domElement.addEventListener('click', () => {
-        clearTimeout(hintTimeout);
-        dismissHint();
-      }, { once: true });
-      window.addEventListener('keydown', () => {
-        clearTimeout(hintTimeout);
-        dismissHint();
-      }, { once: true });
 
       document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
         btn.addEventListener('click', () => goToIndex(i));
