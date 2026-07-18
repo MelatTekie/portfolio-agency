@@ -131,7 +131,6 @@ import profileData from '../data/melat-tekie.json';
         left: 16px;
         width: calc(100vw - 32px);
         max-width: 400px;
-        max-height: calc(100vh - 240px);
         overflow-y: auto;
         text-align: left;
         color: #f3e4c8;
@@ -425,6 +424,15 @@ import profileData from '../data/melat-tekie.json';
         margin: '0 0 20px',
       });
       const contentBody = document.getElementById('content-body');
+
+      function clampPanelHeight() {
+        const navBar = document.getElementById('chapter-nav');
+        const panelTop = contentPanel.getBoundingClientRect().top;
+        const navTop = navBar.getBoundingClientRect().top;
+        const available = navTop - panelTop - 20;
+        contentPanel.style.maxHeight = Math.max(available, 100) + 'px';
+      }
+      window.addEventListener('resize', clampPanelHeight);
 
       const chapterContent = {
         about: {
@@ -844,6 +852,7 @@ import profileData from '../data/melat-tekie.json';
         }
 
         contentPanel.classList.add('visible');
+        clampPanelHeight();
       }
 
       function hideContent() {
