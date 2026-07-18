@@ -13,7 +13,7 @@ import profileData from '../data/melat-tekie.json';
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1410'/%3E%3Ctext x='16' y='23' font-family='Georgia, serif' font-size='19' font-weight='bold' fill='%23ffb877' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
     <style>
       body { margin: 0; overflow: hidden; font-family: sans-serif; }
-      #experience-container { width: 100vw; height: 100vh; }
+      #experience-container { width: 100vw; height: calc(var(--vh, 1vh) * 100); }
 
       #loading-overlay {
         position: fixed;
@@ -404,6 +404,17 @@ import profileData from '../data/melat-tekie.json';
 
       const profile = window.__PROFILE__;
 
+      // iOS Safari's address bar shows/hides dynamically, and 100vh doesn't
+      // account for that — it measures the full viewport including space
+      // the toolbar is covering. This keeps a real, current measurement
+      // in a CSS custom property instead, avoiding blank gaps or cut-off content.
+      function setViewportHeight() {
+        document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+      }
+      setViewportHeight();
+      window.addEventListener('resize', setViewportHeight);
+      window.addEventListener('orientationchange', setViewportHeight);
+
       const container = document.getElementById('experience-container');
       const { scene, camera, renderer } = initScene(container);
       const markers = addChapterMarkers(scene, chapters);
@@ -638,21 +649,52 @@ import profileData from '../data/melat-tekie.json';
           headerText.appendChild(heading);
 
           const toggle = document.createElement('div');
-          toggle.className = 'journal-toggle';
+          Object.assign(toggle.style, {
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '1px solid rgba(255, 187, 112, 0.4)',
+            color: '#ffbb70',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '13px',
+            lineHeight: '1',
+            flexShrink: '0',
+            marginTop: '2px',
+            transition: 'transform 0.3s ease',
+          });
           toggle.textContent = '+';
 
           header.appendChild(headerText);
           header.appendChild(toggle);
 
           const narrativeWrap = document.createElement('div');
-          narrativeWrap.className = 'journal-narrative-wrap';
+          Object.assign(narrativeWrap.style, {
+            maxHeight: '0',
+            overflow: 'hidden',
+            opacity: '0',
+            transition: 'max-height 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease',
+          });
           const narrative = document.createElement('p');
           narrative.className = 'journal-narrative';
           narrative.textContent = entry.narrative;
           narrativeWrap.appendChild(narrative);
 
+          let isExpanded = false;
           header.addEventListener('click', () => {
-            item.classList.toggle('expanded');
+            isExpanded = !isExpanded;
+            toggle.style.transform = isExpanded ? 'rotate(45deg)' : 'rotate(0deg)';
+            if (isExpanded) {
+              narrativeWrap.style.maxHeight = narrativeWrap.scrollHeight + 40 + 'px';
+              narrativeWrap.style.opacity = '1';
+              narrativeWrap.style.marginTop = '10px';
+            } else {
+              narrativeWrap.style.maxHeight = '0';
+              narrativeWrap.style.opacity = '0';
+              narrativeWrap.style.marginTop = '0';
+            }
+            clampPanelHeight();
           });
 
           item.appendChild(header);
