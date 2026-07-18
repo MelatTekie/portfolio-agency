@@ -361,6 +361,40 @@ import profileData from '../data/melat-tekie.json';
       .journey-detail {
         transition: opacity 0.25s ease;
       }
+
+      #nav-prev, #nav-next {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(15, 10, 7, 0.75);
+        border: 1px solid rgba(255, 184, 119, 0.3);
+        color: #ffb877;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 12;
+      }
+      #nav-prev { left: 12px; }
+      #nav-next { right: 12px; }
+
+      /* Mobile overhaul — narrow screens need smaller everything and
+         different spacing since the desktop values leave no room */
+      @media (max-width: 600px) {
+        #site-header { top: 14px; }
+        #site-header h1 { font-size: 20px; margin: 0 0 2px; }
+        #site-header p { font-size: 10px; }
+        #onboarding-hint { top: 70px; font-size: 10px; padding: 6px 12px; max-width: calc(100vw - 24px); text-align: center; }
+        #content-panel { top: 108px; left: 12px; padding: 14px 16px; }
+        #content-title { font-size: 15px; }
+        #content-subtitle { font-size: 10px; }
+        #chapter-nav { bottom: 14px; gap: 4px; }
+        .chapter-btn { padding: 7px 10px; font-size: 10px; gap: 4px; }
+        .chapter-btn span { display: none; }
+        #nav-prev, #nav-next { width: 34px; height: 34px; font-size: 18px; }
+      }
     </style>
   </head>
   <body>
@@ -371,7 +405,9 @@ import profileData from '../data/melat-tekie.json';
       <h1>Beyond My Resume</h1>
       <p>Discover my work. Imagine what's possible for yours.</p>
     </header>
-    <div id="onboarding-hint">Click any object, or use the nav below to explore</div>
+    <div id="onboarding-hint">Tap an object, use the arrows, or the nav below</div>
+    <button id="nav-prev" aria-label="Previous chapter">‹</button>
+    <button id="nav-next" aria-label="Next chapter">›</button>
     <div id="content-panel">
       <p id="content-eyebrow"></p>
       <h2 id="content-title"></h2>
@@ -383,23 +419,23 @@ import profileData from '../data/melat-tekie.json';
     <nav id="chapter-nav">
       <button class="chapter-btn" data-index="0">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-        About
+        <span>About</span>
       </button>
       <button class="chapter-btn" data-index="1">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.5" fill="currentColor" stroke="none"/><path d="M5 19c3-5 4 3 7-2s3-6 7-9"/></svg>
-        The Journey
+        <span>The Journey</span>
       </button>
       <button class="chapter-btn" data-index="2">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg>
-        Skills
+        <span>Skills</span>
       </button>
       <button class="chapter-btn" data-index="3">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h6l2 2h10v10H3z"/></svg>
-        Projects
+        <span>Projects</span>
       </button>
       <button class="chapter-btn" data-index="4">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-        Contact
+        <span>Contact</span>
       </button>
     </nav>
 
@@ -938,6 +974,13 @@ import profileData from '../data/melat-tekie.json';
       }
 
       setupMarkerInteraction(camera, renderer, markers, goToIndex);
+
+      document.getElementById('nav-prev').addEventListener('click', () => {
+        goToIndex(currentIndex - 1);
+      });
+      document.getElementById('nav-next').addEventListener('click', () => {
+        goToIndex(currentIndex + 1);
+      });
 
       // Loading overlay — brief, masks initial scene setup
       const loadingOverlay = document.getElementById('loading-overlay');
