@@ -70,25 +70,25 @@
   "Jira"
 ],
     "projects": [
-    {
-      "id": "catering-platform",
-      "name": "Catering Platform",
-      "description": "A Next.js ordering site for a local restaurant, with a live headcount calculator and inquiry system.",
-      "techStack": ["Next.js", "Tailwind CSS", "Supabase"],
-      "imageUrl": "",
-      "liveUrl": "",
-      "repoUrl": ""
-    },
-    {
-      "id": "portfolio-agency",
-      "name": "Portfolio Engine",
-      "description": "A dynamic Astro-based portfolio system that renders developer profiles from JSON data.",
-      "techStack": ["Astro", "TypeScript"],
-      "imageUrl": "",
-      "liveUrl": "",
-      "repoUrl": ""
-    }
-  ],
+  {
+    "id": "catering-platform",
+    "name": "Catering Platform",
+    "description": "A local restaurant needed a way to take catering orders online instead of relying on phone calls and guesswork. I built a full ordering system in Next.js with a live Supabase backend — customers browse the real menu, use a headcount calculator to see pricing update in real time, and submit inquiries that land directly in the owner's inbox. The result: a self-serve ordering flow that didn't exist before, cutting out manual back-and-forth for every quote.",
+    "techStack": ["Next.js", "Tailwind CSS", "Supabase"],
+    "imageUrl": "",
+    "liveUrl": "",
+    "repoUrl": ""
+  },
+  {
+    "id": "portfolio-agency",
+    "name": "Portfolio Engine",
+    "description": "Building a portfolio for every future client from scratch would mean rewriting the same page over and over. Instead, I designed a single Astro-based engine driven entirely by JSON — each person's name, bio, skills, and projects live in their own data file, and one dynamic route renders any of them on demand. Adding a new client's portfolio now means duplicating a template and filling in their info, not building a new site from zero.",
+    "techStack": ["Astro", "TypeScript"],
+    "imageUrl": "",
+    "liveUrl": "",
+    "repoUrl": ""
+  }
+],
     "contact":  {
       "email": "mhaile2728@gmail.com",
       "phone": "",

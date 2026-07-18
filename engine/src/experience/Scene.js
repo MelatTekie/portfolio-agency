@@ -111,7 +111,7 @@ function createFaceGroup(skinMat, hairMat) {
   });
 
   const eyeGeo = new THREE.SphereGeometry(0.026, 8, 8);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a1410 });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a1410, emissive: 0x000000, emissiveIntensity: 0 });
   const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
   eyeL.position.set(-0.09, 0.02, 0.25);
   const eyeR = eyeL.clone();
@@ -125,7 +125,7 @@ function createFaceGroup(skinMat, hairMat) {
   mouth.rotation.z = Math.PI;
   faceGroup.add(mouth);
 
-  return faceGroup;
+  return { faceGroup, eyeMat };
 }
 
 // ---------- Seated avatar (About chapter) ----------
@@ -133,7 +133,7 @@ function createAvatar() {
   const group = new THREE.Group();
   const skinMat = new THREE.MeshStandardMaterial({ color: 0xd9a679 });
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x2b1a10 });
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x5f8570 });
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8b4226 });
   const bodyGeo = new THREE.CapsuleGeometry(0.24, 0.4, 4, 8);
   const body = new THREE.Mesh(bodyGeo, bodyMat);
   body.position.y = 0.42;
@@ -145,7 +145,7 @@ function createAvatar() {
   neck.position.y = 0.7;
   group.add(neck);
 
-  const faceGroup = createFaceGroup(skinMat, hairMat);
+  const { faceGroup, eyeMat } = createFaceGroup(skinMat, hairMat);
   faceGroup.position.y = 1.02;
   faceGroup.rotation.x = 0.3;
   group.add(faceGroup);
@@ -207,7 +207,7 @@ function createStandingAvatar() {
   const group = new THREE.Group();
   const skinMat = new THREE.MeshStandardMaterial({ color: 0xd9a679 });
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x2b1a10 });
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x5f8570 });
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8b4226 });
 
   const bodyGeo = new THREE.CapsuleGeometry(0.22, 0.5, 4, 8);
   const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -220,7 +220,7 @@ function createStandingAvatar() {
   neck.position.y = 0.95;
   group.add(neck);
 
-  const faceGroup = createFaceGroup(skinMat, hairMat);
+  const { faceGroup, eyeMat } = createFaceGroup(skinMat, hairMat);
   faceGroup.position.y = 1.25;
   faceGroup.rotation.x = 0.1;
   group.add(faceGroup);
@@ -262,9 +262,13 @@ function createStandingAvatar() {
 
   function wave() {
     gsap.to(armR.rotation, { z: -0.9, duration: 0.25, yoyo: true, repeat: 3, ease: 'sine.inOut' });
+    gsap.to(armR.rotation, { z: -0.5, duration: 0.3, delay: 1.15, ease: 'power2.out' });
+  }
+  function lower() {
+    gsap.to(armR.rotation, { z: -0.12, duration: 0.4, ease: 'power2.inOut' });
   }
 
-  return { group, wave };
+  return { group, wave, lower };
 }
 
 // ---------- Themed chapter markers ----------
@@ -291,6 +295,7 @@ function createJourneyMarker(color) {
   group.add(avatar.group);
 
   group.userData.onOpen = avatar.wave;
+  group.userData.onClose = avatar.lower;
 
   return group;
 }

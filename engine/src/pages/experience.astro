@@ -5,7 +5,12 @@ import profileData from '../data/melat-tekie.json';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Melat Tekie — Experience</title>
+    <title>Melat Tekie — Beyond My Resume</title>
+    <meta name="description" content="Melat Tekie — full-stack developer portfolio. Explore my journey, skills, and projects through an interactive 3D experience." />
+    <meta property="og:title" content="Melat Tekie — Beyond My Resume" />
+    <meta property="og:description" content="Discover my work. Imagine what's possible for yours." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1410'/%3E%3Ctext x='16' y='23' font-family='Georgia, serif' font-size='19' font-weight='bold' fill='%23ffb877' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
     <style>
       body { margin: 0; overflow: hidden; font-family: sans-serif; }
       #experience-container { width: 100vw; height: 100vh; }
@@ -122,10 +127,12 @@ import profileData from '../data/melat-tekie.json';
 
       #content-panel {
         position: absolute;
-        bottom: 90px;
+        top: 150px;
         left: 16px;
         width: calc(100vw - 32px);
         max-width: 400px;
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
         text-align: left;
         color: #f3e4c8;
         opacity: 0;
