@@ -12,7 +12,16 @@ import profileData from '../data/melat-tekie.json';
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1410'/%3E%3Ctext x='16' y='23' font-family='Georgia, serif' font-size='19' font-weight='bold' fill='%23ffb877' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E" />
     <style>
-      body { margin: 0; overflow: hidden; font-family: sans-serif; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        overscroll-behavior: none;
+        font-family: sans-serif;
+      }
       #experience-container { width: 100vw; height: calc(var(--vh, 1vh) * 100); }
 
       #loading-overlay {
@@ -37,7 +46,7 @@ import profileData from '../data/melat-tekie.json';
       }
 
       #onboarding-hint {
-        position: absolute;
+        position: fixed;
         top: 110px;
         left: 50%;
         transform: translateX(-50%);
@@ -56,7 +65,7 @@ import profileData from '../data/melat-tekie.json';
       }
 
       #site-header {
-        position: absolute;
+        position: fixed;
         top: 36px;
         left: 50%;
         transform: translateX(-50%);
@@ -78,7 +87,7 @@ import profileData from '../data/melat-tekie.json';
       }
 
       #chapter-nav {
-        position: absolute;
+        position: fixed;
         bottom: 24px;
         left: 50%;
         transform: translateX(-50%);
@@ -126,7 +135,7 @@ import profileData from '../data/melat-tekie.json';
       }
 
       #content-panel {
-        position: absolute;
+        position: fixed;
         top: 150px;
         left: 16px;
         width: calc(100vw - 32px);
