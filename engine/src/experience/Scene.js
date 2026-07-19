@@ -1,13 +1,129 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
+function createSkyDome() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 256);
+  gradient.addColorStop(0, '#0d0805');
+  gradient.addColorStop(0.55, '#2e1a10');
+  gradient.addColorStop(1, '#5c3018');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 2, 256);
+  const texture = new THREE.CanvasTexture(canvas);
+  const geometry = new THREE.SphereGeometry(85, 16, 16);
+  const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide, fog: false });
+  return new THREE.Mesh(geometry, material);
+}
+
+function createTree() {
+  const group = new THREE.Group();
+
+  const trunkGeo = new THREE.CylinderGeometry(0.08, 0.13, 1.2, 6);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3a2a18 });
+  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+  trunk.position.y = 0.6;
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  const foliageMat = new THREE.MeshStandardMaterial({ color: 0x33481f });
+  [0, 0.45, 0.85].forEach((yOff, i) => {
+    const size = 0.65 - i * 0.13;
+    const foliageGeo = new THREE.ConeGeometry(size, 0.85, 7);
+    const foliage = new THREE.Mesh(foliageGeo, foliageMat);
+    foliage.position.y = 1.25 + yOff;
+    foliage.castShadow = true;
+    group.add(foliage);
+  });
+
+  return group;
+}
+
+function scatterTrees(scene) {
+  // Keep trees clear of every station and the campfire so they never
+  // block the objects/avatars themselves
+  const exclusionPoints = [
+    { x: 0, z: 0 },
+    { x: 5, z: -2.5 },
+    { x: 10, z: -5 },
+    { x: 15, z: -7.5 },
+    { x: 20, z: -10 },
+    { x: 1.3, z: 0.6 },
+  ];
+  const minDistance = 3;
+
+  function isClearOfStations(x, z) {
+    return exclusionPoints.every((p) => {
+      const dx = x - p.x;
+      const dz = z - p.z;
+      return Math.sqrt(dx * dx + dz * dz) > minDistance;
+    });
+  }
+
+  let placed = 0;
+  let attempts = 0;
+  while (placed < 26 && attempts < 200) {
+    attempts++;
+    const x = Math.random() * 28 - 4;
+    const side = Math.random() > 0.5 ? 1 : -1;
+    const z = -6 + Math.random() * -10 + side * (3.5 + Math.random() * 4);
+
+    if (!isClearOfStations(x, z)) continue;
+
+    const tree = createTree();
+    tree.position.set(x, 0, z);
+    const scale = 0.7 + Math.random() * 0.6;
+    tree.scale.set(scale, scale, scale);
+    tree.rotation.y = Math.random() * Math.PI * 2;
+    scene.add(tree);
+    placed++;
+  }
+}
+
+function createCampfire() {
+  const group = new THREE.Group();
+
+  const logMat = new THREE.MeshStandardMaterial({ color: 0x2a1c10 });
+  for (let i = 0; i < 4; i++) {
+    const logGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6);
+    const log = new THREE.Mesh(logGeo, logMat);
+    log.rotation.z = Math.PI / 2;
+    log.rotation.y = (i / 4) * Math.PI * 2;
+    log.position.y = 0.05;
+    log.castShadow = true;
+    group.add(log);
+  }
+
+  const flameGeo = new THREE.ConeGeometry(0.12, 0.35, 8);
+  const flameMat = new THREE.MeshStandardMaterial({
+    color: 0xff9d3c,
+    emissive: 0xff6a1a,
+    emissiveIntensity: 1.5,
+  });
+  const flame = new THREE.Mesh(flameGeo, flameMat);
+  flame.position.y = 0.25;
+  group.add(flame);
+
+  const fireLight = new THREE.PointLight(0xff8a3c, 2, 6);
+  fireLight.position.y = 0.4;
+  group.add(fireLight);
+
+  group.userData.flame = flame;
+  group.userData.fireLight = fireLight;
+
+  return group;
+}
+
 export function initScene(container) {
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x1a1410, 0.035);
   scene.background = new THREE.Color(0x1a1410);
+  scene.add(createSkyDome());
 
   const camera = new THREE.PerspectiveCamera(
-    60,
+    window.innerWidth / window.innerHeight < 1 ? 78 : 60,
     window.innerWidth / window.innerHeight,
     0.1,
     100
@@ -51,25 +167,41 @@ export function initScene(container) {
   fillLight.position.set(-5, 3, -5);
   scene.add(fillLight);
 
-  // Ground plane so lighting/fog has something to render against
+  // Ground plane, sized and centered to cover the full chapter path
   const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(50, 50),
+    new THREE.PlaneGeometry(70, 60),
     new THREE.MeshStandardMaterial({ color: 0x2a2018 })
   );
   ground.rotation.x = -Math.PI / 2;
+  ground.position.set(16, 0, -8);
   ground.receiveShadow = true;
   scene.add(ground);
+
+  scatterTrees(scene);
+
+  const campfire = createCampfire();
+  campfire.position.set(-3, 0, 3);
+  scene.add(campfire);
+
+  const clock = new THREE.Clock();
 
   function animate() {
     requestAnimationFrame(animate);
     scene.userData.animated?.forEach((obj) => {
       if (obj.userData.spin) obj.rotation.y += obj.userData.spin;
     });
+
+    const t = clock.getElapsedTime();
+    const flicker = 1.5 + Math.sin(t * 8) * 0.3 + Math.sin(t * 23) * 0.15;
+    campfire.userData.fireLight.intensity = flicker;
+    campfire.userData.flame.scale.y = 1 + Math.sin(t * 10) * 0.15;
+
     renderer.render(scene, camera);
   }
   animate();
 
   window.addEventListener('resize', () => {
+    camera.fov = window.innerWidth / window.innerHeight < 1 ? 78 : 60;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -133,7 +265,7 @@ function createAvatar() {
   const group = new THREE.Group();
   const skinMat = new THREE.MeshStandardMaterial({ color: 0xd9a679 });
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x2b1a10 });
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8b4226 });
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xd4771f });
   const bodyGeo = new THREE.CapsuleGeometry(0.24, 0.4, 4, 8);
   const body = new THREE.Mesh(bodyGeo, bodyMat);
   body.position.y = 0.42;
@@ -207,7 +339,7 @@ function createStandingAvatar() {
   const group = new THREE.Group();
   const skinMat = new THREE.MeshStandardMaterial({ color: 0xd9a679 });
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x2b1a10 });
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8b4226 });
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xd4771f });
 
   const bodyGeo = new THREE.CapsuleGeometry(0.22, 0.5, 4, 8);
   const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -508,6 +640,28 @@ function createContactMarker(color) {
   return group;
 }
 
+// ---------- Connecting path between stations ----------
+export function createPath(scene, chapters) {
+  const pathMat = new THREE.MeshStandardMaterial({ color: 0x4a3320 });
+
+  for (let i = 0; i < chapters.length - 1; i++) {
+    const from = chapters[i].lookAt;
+    const to = chapters[i + 1].lookAt;
+    const dx = to.x - from.x;
+    const dz = to.z - from.z;
+    const length = Math.sqrt(dx * dx + dz * dz);
+    const angle = Math.atan2(dx, dz);
+
+    const segmentGeo = new THREE.PlaneGeometry(1.6, length + 0.5);
+    const segment = new THREE.Mesh(segmentGeo, pathMat);
+    segment.rotation.x = -Math.PI / 2;
+    segment.rotation.z = -angle;
+    segment.position.set((from.x + to.x) / 2, 0.01, (from.z + to.z) / 2);
+    segment.receiveShadow = true;
+    scene.add(segment);
+  }
+}
+
 // ---------- Chapter marker placement ----------
 export function addChapterMarkers(scene, chapters) {
   const markers = [];
@@ -537,7 +691,12 @@ export function addChapterMarkers(scene, chapters) {
       scene.userData.animated.push(mesh);
     }
 
-    mesh.position.set(chapter.lookAt.x, chapter.lookAt.y, chapter.lookAt.z);
+    // About, Journey, and Projects are grounded figures/objects that
+    // should stand on the ground. Skills and Contact keep their original
+    // floating placement at the camera's eye-level height.
+    const groundedIds = ['about', 'experience', 'projects'];
+    const markerY = groundedIds.includes(chapter.id) ? 0 : chapter.lookAt.y;
+    mesh.position.set(chapter.lookAt.x, markerY, chapter.lookAt.z);
     mesh.traverse((child) => {
       child.userData.chapterIndex = index;
     });

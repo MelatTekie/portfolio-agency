@@ -56,9 +56,26 @@ import profileData from '../data/melat-tekie.json';
         padding: 8px 18px;
         font-size: 12px;
         color: #e8c9a0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         z-index: 15;
         opacity: 0;
         transition: opacity 0.5s ease;
+      }
+      .key-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 1.5px solid #ffb877;
+        background: rgba(255, 184, 119, 0.12);
+        color: #ffd9ad;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 2px 0 rgba(255, 184, 119, 0.4);
       }
       #onboarding-hint.visible {
         opacity: 1;
@@ -137,8 +154,8 @@ import profileData from '../data/melat-tekie.json';
       #content-panel {
         position: fixed;
         top: 150px;
-        left: 16px;
-        width: calc(100vw - 32px);
+        left: 66px;
+        width: calc(100vw - 82px);
         max-width: 400px;
         overflow-y: auto;
         text-align: left;
@@ -364,8 +381,7 @@ import profileData from '../data/melat-tekie.json';
 
       #nav-prev, #nav-next {
         position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
+        bottom: 80px;
         width: 42px;
         height: 42px;
         border-radius: 50%;
@@ -377,8 +393,40 @@ import profileData from '../data/melat-tekie.json';
         cursor: pointer;
         z-index: 12;
       }
-      #nav-prev { left: 12px; }
+      #nav-prev {
+        left: 12px;
+        animation: tap-pulse 1.8s ease-in-out infinite;
+      }
       #nav-next { right: 12px; }
+
+      #tap-prompt {
+        position: fixed;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 184, 119, 0.95);
+        color: #1a1410;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 14;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        animation: tap-pulse 1.8s ease-in-out infinite;
+      }
+      #tap-prompt.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      @keyframes tap-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(255, 184, 119, 0.5); }
+        50% { box-shadow: 0 0 0 8px rgba(255, 184, 119, 0); }
+      }
 
       /* Mobile overhaul — narrow screens need smaller everything and
          different spacing since the desktop values leave no room */
@@ -387,13 +435,14 @@ import profileData from '../data/melat-tekie.json';
         #site-header h1 { font-size: 20px; margin: 0 0 2px; }
         #site-header p { font-size: 10px; }
         #onboarding-hint { top: 70px; font-size: 10px; padding: 6px 12px; max-width: calc(100vw - 24px); text-align: center; }
-        #content-panel { top: 108px; left: 12px; padding: 14px 16px; }
+        #content-panel { top: 108px; left: 54px; width: calc(100vw - 70px); padding: 14px 16px; }
         #content-title { font-size: 15px; }
         #content-subtitle { font-size: 10px; }
         #chapter-nav { bottom: 14px; gap: 4px; }
         .chapter-btn { padding: 7px 10px; font-size: 10px; gap: 4px; }
         .chapter-btn span { display: none; }
         #nav-prev, #nav-next { width: 34px; height: 34px; font-size: 18px; }
+        #tap-prompt { font-size: 11px; padding: 7px 12px; }
       }
     </style>
   </head>
@@ -405,9 +454,17 @@ import profileData from '../data/melat-tekie.json';
       <h1>Beyond My Resume</h1>
       <p>Discover my work. Imagine what's possible for yours.</p>
     </header>
-    <div id="onboarding-hint">Tap an object, use the arrows, or the nav below</div>
+    <div id="onboarding-hint">
+      <span>Tap an object, use</span>
+      <span class="key-badge">‹</span>
+      <span class="key-badge">›</span>
+      <span>or the nav below</span>
+    </div>
     <button id="nav-prev" aria-label="Previous chapter">‹</button>
     <button id="nav-next" aria-label="Next chapter">›</button>
+    <button id="tap-prompt">
+      <span>Tap to explore</span>
+    </button>
     <div id="content-panel">
       <p id="content-eyebrow"></p>
       <h2 id="content-title"></h2>
@@ -443,7 +500,7 @@ import profileData from '../data/melat-tekie.json';
       window.__PROFILE__ = profile;
     </script>
     <script>
-      import { initScene, addChapterMarkers, setupMarkerInteraction } from '../experience/Scene.js';
+      import { initScene, addChapterMarkers, setupMarkerInteraction, createPath } from '../experience/Scene.js';
       import { createCameraController } from '../experience/CameraController.js';
       import { chapters } from '../experience/chapters.js';
 
@@ -463,12 +520,14 @@ import profileData from '../data/melat-tekie.json';
       const container = document.getElementById('experience-container');
       const { scene, camera, renderer } = initScene(container);
       const markers = addChapterMarkers(scene, chapters);
+      createPath(scene, chapters);
       const cameraController = createCameraController(camera);
 
       let currentIndex = 0;
       let openIndex = null;
 
       const contentPanel = document.getElementById('content-panel');
+      contentPanel.style.overflowY = 'auto';
       const contentEyebrow = document.getElementById('content-eyebrow');
       const contentTitle = document.getElementById('content-title');
       const contentSubtitle = document.getElementById('content-subtitle');
@@ -483,10 +542,17 @@ import profileData from '../data/melat-tekie.json';
 
       function clampPanelHeight() {
         const navBar = document.getElementById('chapter-nav');
+        const navPrev = document.getElementById('nav-prev');
         const panelTop = contentPanel.getBoundingClientRect().top;
-        const navTop = navBar.getBoundingClientRect().top;
-        const available = navTop - panelTop - 20;
+        const navBarTop = navBar.getBoundingClientRect().top;
+        const arrowTop = navPrev.getBoundingClientRect().top;
+        const boundaryTop = Math.min(navBarTop, arrowTop);
+        const available = boundaryTop - panelTop - 20;
         contentPanel.style.maxHeight = Math.max(available, 100) + 'px';
+      }
+      function clampPanelHeightDeferred() {
+        clampPanelHeight();
+        requestAnimationFrame(clampPanelHeight);
       }
       window.addEventListener('resize', clampPanelHeight);
 
@@ -660,10 +726,16 @@ import profileData from '../data/melat-tekie.json';
           item.className = 'journal-entry';
 
           const header = document.createElement('div');
-          header.className = 'journal-header';
+          Object.assign(header.style, {
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '12px',
+            cursor: 'pointer',
+          });
 
           const headerText = document.createElement('div');
-          headerText.className = 'journal-header-text';
+          headerText.style.flex = '1';
 
           if (entry.dates) {
             const dates = document.createElement('p');
@@ -739,7 +811,7 @@ import profileData from '../data/melat-tekie.json';
               narrativeWrap.style.opacity = '0';
               narrativeWrap.style.marginTop = '0';
             }
-            clampPanelHeight();
+            clampPanelHeightDeferred();
           });
 
           item.appendChild(header);
@@ -952,28 +1024,79 @@ import profileData from '../data/melat-tekie.json';
         });
       }
 
+      const tapPrompt = document.getElementById('tap-prompt');
+
+      function getObjectScreenPosition(index) {
+        const worldPos = markers[index].position.clone();
+        worldPos.y += 0.9;
+        const projected = worldPos.project(camera);
+        const rect = renderer.domElement.getBoundingClientRect();
+        return {
+          x: (projected.x * 0.5 + 0.5) * rect.width + rect.left,
+          y: (-projected.y * 0.5 + 0.5) * rect.height + rect.top,
+        };
+      }
+
+      function showTapPrompt(index) {
+        if (!markers[index].userData.onOpen) return;
+        const pos = getObjectScreenPosition(index);
+        tapPrompt.style.left = pos.x + 'px';
+        tapPrompt.style.top = pos.y + 'px';
+        tapPrompt.classList.add('visible');
+      }
+
+      function hideTapPrompt() {
+        tapPrompt.classList.remove('visible');
+      }
+
+      function openCurrentMarker() {
+        showContent(chapters[currentIndex]);
+
+        if (markers[currentIndex].userData.onOpen) {
+          markers[currentIndex].userData.onOpen();
+          if (markers[currentIndex].userData.onClose) {
+            openIndex = currentIndex;
+          }
+        }
+        hideTapPrompt();
+      }
+
+      tapPrompt.addEventListener('click', openCurrentMarker);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          openCurrentMarker();
+        }
+      });
+
       function goToIndex(i) {
         currentIndex = Math.max(0, Math.min(chapters.length - 1, i));
         hideContent();
+        hideTapPrompt();
         cameraController.goTo(chapters[currentIndex], 2, () => {
-          showContent(chapters[currentIndex]);
-
           if (openIndex !== null && openIndex !== currentIndex && markers[openIndex].userData.onClose) {
             markers[openIndex].userData.onClose();
             openIndex = null;
           }
 
-          if (markers[currentIndex].userData.onOpen) {
-            markers[currentIndex].userData.onOpen();
-            if (markers[currentIndex].userData.onClose) {
-              openIndex = currentIndex;
-            }
-          }
+          showTapPrompt(currentIndex);
         });
         updateNavUI();
       }
 
-      setupMarkerInteraction(camera, renderer, markers, goToIndex);
+      // Clicking an object: if it's the chapter you're already viewing,
+      // open it directly (same as tapping the prompt). If it's a
+      // different chapter, navigate there first — the prompt appears,
+      // opening still requires a second, deliberate tap.
+      function handleObjectClick(index) {
+        if (index === currentIndex) {
+          openCurrentMarker();
+        } else {
+          goToIndex(index);
+        }
+      }
+
+      setupMarkerInteraction(camera, renderer, markers, handleObjectClick);
 
       document.getElementById('nav-prev').addEventListener('click', () => {
         goToIndex(currentIndex - 1);
@@ -1004,7 +1127,7 @@ import profileData from '../data/melat-tekie.json';
       });
 
       cameraController.goTo(chapters[0], 0, () => {
-        showContent(chapters[0]);
+        showTapPrompt(0);
       });
       updateNavUI();
     </script>
