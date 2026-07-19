@@ -70,25 +70,88 @@
   "Jira"
 ],
     "projects": [
-  {
-    "id": "catering-platform",
-    "name": "Catering Platform",
-    "description": "A local restaurant needed a way to take catering orders online instead of relying on phone calls and guesswork. I built a full ordering system in Next.js with a live Supabase backend — customers browse the real menu, use a headcount calculator to see pricing update in real time, and submit inquiries that land directly in the owner's inbox. The result: a self-serve ordering flow that didn't exist before, cutting out manual back-and-forth for every quote.",
-    "techStack": ["Next.js", "Tailwind CSS", "Supabase"],
-    "imageUrl": "",
-    "liveUrl": "",
-    "repoUrl": ""
-  },
-  {
-    "id": "portfolio-agency",
-    "name": "Portfolio Engine",
-    "description": "Building a portfolio for every future client from scratch would mean rewriting the same page over and over. Instead, I designed a single Astro-based engine driven entirely by JSON — each person's name, bio, skills, and projects live in their own data file, and one dynamic route renders any of them on demand. Adding a new client's portfolio now means duplicating a template and filling in their info, not building a new site from zero.",
-    "techStack": ["Astro", "TypeScript"],
-    "imageUrl": "",
-    "liveUrl": "",
-    "repoUrl": ""
-  }
-],
+    {
+      "id": "audit-tool",
+      "name": "Provider Audit Tool",
+      "description": "Auditing whether medical staff met initial credentialing and reappointment criteria was a manual, math-heavy process prone to error. I built a full Power Apps application that automates the eligibility calculations, with role-based permissions controlling what each user sees and can act on. When an audit item fails or needs review, an Outlook integration automatically sends the responsible user a list of flagged items with the ability to act directly — and if the back-and-forth drags on, the system automatically escalates to a manager. What used to be manual, error-prone tracking is now a self-enforcing workflow.",
+      "techStack": ["Power Apps", "Power Automate", "Outlook API"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "sitecore-migration",
+      "name": "University Sitecore Migration",
+      "description": "The university department's site lived in Dreamweaver, disconnected from the university's actual CMS. I led the migration into Sitecore, rebuilding the site's structure and content within it, then implemented Siteimprove to continuously monitor and enforce state accessibility compliance — catching issues before they became legal or usability problems instead of after.",
+      "techStack": ["Sitecore", "Dreamweaver", "Siteimprove"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "salesforce-pharma",
+      "name": "Salesforce Forms & Analytics for Pharma Client",
+      "description": "A pharmaceutical client needed structured data collection built directly into their Salesforce environment. I built the forms themselves, then integrated Einstein Analytics using Python to turn that data into real reporting the team could act on, instead of static entries sitting unused in the CRM.",
+      "techStack": ["Salesforce", "Einstein Analytics", "Python"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "klaviyo-heatwave",
+      "name": "Klaviyo Integration for Heatwave",
+      "description": "Heatwave, a custom apparel company built around logo tee campaigns, had no way to see whether their marketing was actually working. I integrated Klaviyo into their Laravel/PHP site to track engagement and churn, giving them real visibility into impressions and conversions per campaign — turning marketing spend from a guess into a measured decision.",
+      "techStack": ["Laravel", "PHP", "Klaviyo"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "servicenow-connectwise",
+      "name": "ServiceNow \u2194 ConnectWise Ticket Integration",
+      "description": "After an acquisition, the company was running two separate help desk systems \u2014 ServiceNow and the acquired entity's ConnectWise \u2014 with no way to see tickets from both in one place. I built an integration so a ticket submitted on either platform appears seamlessly alongside all the others, regardless of which system a customer happened to use. To the end user, it looks and feels like one unified service desk.",
+      "techStack": ["ServiceNow", "ConnectWise", "REST API"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "servicenow-portal-ux",
+      "name": "ServiceNow Portal UX Redesign",
+      "description": "The client's ServiceNow portal was limited to out-of-the-box components only \u2014 no custom code allowed. Working entirely within Page Designer, I experimented with layout and component combinations to design the best possible user experience the platform's constraints would allow, proving that a limitation doesn't have to mean a bad experience.",
+      "techStack": ["ServiceNow", "Page Designer", "UX Design"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "sharepoint-comms",
+      "name": "SharePoint Communication Sites",
+      "description": "Built a multilingual SharePoint site serving both English and Spanish-speaking users, ensuring content and navigation worked seamlessly in both languages. I also built a suite of custom web parts used across the organization's communication sites, giving other teams reusable, on-brand components instead of rebuilding the same functionality repeatedly.",
+      "techStack": ["SharePoint", "SPFx"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "catering-platform",
+      "name": "Catering Platform",
+      "description": "A local restaurant needed a way to take catering orders online instead of relying on phone calls and guesswork. I built a full ordering system in Next.js with a live Supabase backend \u2014 customers browse the real menu, use a headcount calculator to see pricing update in real time, and submit inquiries that land directly in the owner's inbox. The result: a self-serve ordering flow that didn't exist before, cutting out manual back-and-forth for every quote.",
+      "techStack": ["Next.js", "Tailwind CSS", "Supabase"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    },
+    {
+      "id": "portfolio-agency",
+      "name": "Portfolio Engine",
+      "description": "Building a portfolio for every future client from scratch would mean rewriting the same page over and over. Instead, I designed a single Astro-based engine driven entirely by JSON \u2014 each person's name, bio, skills, and projects live in their own data file, and one dynamic route renders any of them on demand. Adding a new client's portfolio now means duplicating a template and filling in their info, not building a new site from zero.",
+      "techStack": ["Astro", "TypeScript"],
+      "imageUrl": "",
+      "liveUrl": "",
+      "repoUrl": ""
+    }
+  ],
     "contact":  {
       "email": "mhaile2728@gmail.com",
       "phone": "",

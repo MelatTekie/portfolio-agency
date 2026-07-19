@@ -24,6 +24,163 @@ import profileData from '../data/melat-tekie.json';
       }
       #experience-container { width: 100vw; height: calc(var(--vh, 1vh) * 100); }
 
+      #simple-view {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: linear-gradient(180deg, #0d0805 0%, #1a1410 40%, #2e1a10 80%, #3d2312 100%);
+        overflow-y: auto;
+        padding: 8vh 24px 24px;
+      }
+      #simple-view.hidden {
+        display: none;
+      }
+      .simple-inner {
+        max-width: 760px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      #simple-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      #simple-header-people {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      #simple-avatar {
+        flex-shrink: 0;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 184, 119, 0.3);
+      }
+      #simple-cta-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      #simple-resume-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 184, 119, 0.12);
+        border: 1px solid rgba(255, 184, 119, 0.35);
+        color: #ffd9ad;
+        border-radius: 18px;
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      #exit-to-simple {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 16;
+        background: rgba(15, 10, 7, 0.85);
+        border: 1px solid rgba(255, 184, 119, 0.25);
+        color: #e8c9a0;
+        border-radius: 18px;
+        padding: 7px 14px;
+        font-size: 11px;
+        cursor: pointer;
+      }
+      #simple-name {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 24px;
+        color: #ffd9ad;
+        margin: 0 0 2px;
+      }
+      #simple-title {
+        font-size: 12px;
+        color: #c9b48d;
+        margin: 0 0 6px;
+      }
+      #simple-bio {
+        font-size: 12px;
+        color: #f0dfc0;
+        line-height: 1.4;
+        margin: 0;
+        max-width: 400px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .simple-section-label {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #ffb877;
+        margin: 0 0 8px;
+      }
+      #simple-projects {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      #simple-projects .simple-section-label {
+        grid-column: 1 / -1;
+      }
+      .simple-project-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 184, 119, 0.15);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .simple-project-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #ffd9ad;
+        margin: 0 0 4px;
+      }
+      .simple-project-desc {
+        font-size: 11px;
+        color: #d9c39a;
+        line-height: 1.35;
+        margin: 0 0 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .simple-project-tech {
+        font-size: 10px;
+        color: #ffb877;
+        margin: 0;
+      }
+      #simple-contact {
+        margin: 18px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .simple-contact-link {
+        font-size: 13px;
+        color: #ffd9ad;
+        text-decoration: none;
+      }
+      #simple-explore-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #ffb877;
+        color: #1a1410;
+        border: none;
+        border-radius: 24px;
+        padding: 12px 22px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
       #loading-overlay {
         position: fixed;
         inset: 0;
@@ -393,11 +550,15 @@ import profileData from '../data/melat-tekie.json';
         cursor: pointer;
         z-index: 12;
       }
-      #nav-prev {
-        left: 12px;
+      #nav-prev { left: 12px; }
+      #nav-next { right: 12px; }
+      #nav-prev.pulsing, #nav-next.pulsing {
         animation: tap-pulse 1.8s ease-in-out infinite;
       }
-      #nav-next { right: 12px; }
+      #nav-prev:disabled, #nav-next:disabled {
+        opacity: 0.25;
+        cursor: default;
+      }
 
       #tap-prompt {
         position: fixed;
@@ -447,6 +608,29 @@ import profileData from '../data/melat-tekie.json';
     </style>
   </head>
   <body>
+    <div id="simple-view">
+      <div class="simple-inner">
+        <div id="simple-header-row">
+          <div id="simple-header-people">
+            <img id="simple-avatar" src="/avatar.png" alt="Melat Tekie" width="56" height="56" />
+            <div id="simple-header-text">
+              <h1 id="simple-name"></h1>
+              <p id="simple-title"></p>
+              <p id="simple-bio"></p>
+            </div>
+          </div>
+          <div id="simple-cta-row">
+            <button id="simple-explore-btn">Explore the interactive experience →</button>
+            <a id="simple-resume-btn" href="/resume.pdf" download="Melat-Tekie-Resume.pdf">Download Resume</a>
+          </div>
+        </div>
+
+        <div id="simple-projects"></div>
+
+        <div id="simple-contact"></div>
+      </div>
+    </div>
+
     <div id="loading-overlay">
       <p>Loading the experience...</p>
     </div>
@@ -454,6 +638,7 @@ import profileData from '../data/melat-tekie.json';
       <h1>Beyond My Resume</h1>
       <p>Discover my work. Imagine what's possible for yours.</p>
     </header>
+    <button id="exit-to-simple" aria-label="Back to simple view">← Simple view</button>
     <div id="onboarding-hint">
       <span>Tap an object, use</span>
       <span class="key-badge">‹</span>
@@ -498,6 +683,251 @@ import profileData from '../data/melat-tekie.json';
 
     <script define:vars={{ profile: profileData }}>
       window.__PROFILE__ = profile;
+
+      const simpleViewBg = document.getElementById('simple-view');
+      simpleViewBg.style.background =
+        'linear-gradient(180deg, #0d0805 0%, #1a1410 40%, #2e1a10 80%, #3d2312 100%)';
+
+      const simpleName = document.getElementById('simple-name');
+      Object.assign(simpleName.style, {
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontSize: '32px',
+        color: '#ffd9ad',
+        margin: '0 0 4px',
+      });
+      simpleName.textContent = profile.name;
+
+      const simpleTitle = document.getElementById('simple-title');
+      Object.assign(simpleTitle.style, {
+        fontSize: '14px',
+        color: '#c9b48d',
+        margin: '0 0 20px',
+      });
+      simpleTitle.textContent = profile.title;
+
+      const simpleBio = document.getElementById('simple-bio');
+      Object.assign(simpleBio.style, {
+        fontSize: '14px',
+        color: '#f0dfc0',
+        lineHeight: '1.6',
+        margin: '0 0 24px',
+        maxWidth: '480px',
+      });
+      simpleBio.textContent = profile.bio || profile.title;
+
+      const exploreBtn = document.getElementById('simple-explore-btn');
+      Object.assign(exploreBtn.style, {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        background: '#ffb877',
+        color: '#1a1410',
+        border: 'none',
+        borderRadius: '18px',
+        padding: '8px 16px',
+        fontSize: '11px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        animation: 'tap-pulse 1.8s ease-in-out infinite',
+      });
+      exploreBtn.addEventListener('click', () => {
+        document.getElementById('simple-view').classList.add('hidden');
+      });
+
+      function sectionLabel(text) {
+        const label = document.createElement('p');
+        Object.assign(label.style, {
+          fontSize: '11px',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: '#ffb877',
+          margin: '0 0 12px',
+        });
+        label.textContent = text;
+        return label;
+      }
+
+      const projectsContainer = document.getElementById('simple-projects');
+      Object.assign(projectsContainer.style, {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '10px',
+      });
+
+      const projectsLabel = sectionLabel('Selected Work');
+      projectsLabel.style.gridColumn = '1 / -1';
+      projectsContainer.appendChild(projectsLabel);
+
+      profile.projects.slice(0, 4).forEach((p) => {
+        const card = document.createElement('div');
+        Object.assign(card.style, {
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid rgba(255, 184, 119, 0.15)',
+          borderRadius: '8px',
+          padding: '10px 12px',
+        });
+
+        const name = document.createElement('p');
+        Object.assign(name.style, {
+          fontSize: '13px',
+          fontWeight: '600',
+          color: '#ffd9ad',
+          margin: '0 0 4px',
+        });
+        name.textContent = p.name;
+
+        const desc = document.createElement('p');
+        Object.assign(desc.style, {
+          fontSize: '11px',
+          color: '#d9c39a',
+          lineHeight: '1.35',
+          margin: '0 0 4px',
+          display: '-webkit-box',
+          WebkitLineClamp: '2',
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        });
+        desc.textContent = p.description;
+
+        const seeMoreBtn = document.createElement('button');
+        Object.assign(seeMoreBtn.style, {
+          background: 'none',
+          border: 'none',
+          color: '#ffb877',
+          fontSize: '10px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          padding: '0',
+          margin: '0 0 6px',
+          display: 'block',
+        });
+        seeMoreBtn.textContent = 'See more';
+        let expanded = false;
+        seeMoreBtn.addEventListener('click', () => {
+          expanded = !expanded;
+          if (expanded) {
+            desc.style.webkitLineClamp = 'unset';
+            desc.style.display = 'block';
+            seeMoreBtn.textContent = 'See less';
+          } else {
+            desc.style.display = '-webkit-box';
+            desc.style.webkitLineClamp = '2';
+            seeMoreBtn.textContent = 'See more';
+          }
+        });
+
+        const tech = document.createElement('p');
+        Object.assign(tech.style, {
+          fontSize: '10px',
+          color: '#ffb877',
+          margin: '0',
+        });
+        tech.textContent = p.techStack.join(' \u00b7 ');
+
+        card.appendChild(name);
+        card.appendChild(desc);
+        card.appendChild(seeMoreBtn);
+        card.appendChild(tech);
+        projectsContainer.appendChild(card);
+      });
+
+      const contactContainer = document.getElementById('simple-contact');
+      Object.assign(contactContainer.style, {
+        margin: '32px 0',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      });
+      contactContainer.appendChild(sectionLabel('Contact'));
+
+      const contactColumns = document.createElement('div');
+      Object.assign(contactColumns.style, {
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap',
+      });
+
+      const contactItems = [];
+      if (profile.contact.email) {
+        contactItems.push({
+          href: 'mailto:' + profile.contact.email,
+          label: 'Email',
+          value: profile.contact.email,
+          icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+        });
+      }
+      if (profile.contact.linkedin) {
+        contactItems.push({
+          href: profile.contact.linkedin,
+          label: 'LinkedIn',
+          value: 'Connect with me',
+          icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg>',
+        });
+      }
+      if (profile.contact.github) {
+        contactItems.push({
+          href: profile.contact.github,
+          label: 'GitHub',
+          value: 'See my code',
+          icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb877" stroke-width="2" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9c0-1.1.35-1.8 1-2.4-3.35-.4-6.87-1.75-6.87-7.9 0-1.75.6-3.15 1.6-4.25-.15-.4-.7-2.05.15-4.25 0 0 1.3-.4 4.25 1.6a14.7 14.7 0 0 1 7.75 0c2.95-2 4.25-1.6 4.25-1.6.85 2.2.3 3.85.15 4.25 1 1.1 1.6 2.5 1.6 4.25 0 6.15-3.55 7.5-6.9 7.9.55.5 1 1.45 1 2.9V22"/></svg>',
+        });
+      }
+
+      contactItems.forEach((item, index) => {
+        const col = document.createElement(item.href ? 'a' : 'div');
+        Object.assign(col.style, {
+          flex: '1',
+          minWidth: '120px',
+          textAlign: 'center',
+          padding: '0 8px',
+          textDecoration: 'none',
+          display: 'block',
+          color: '#f0dfc0',
+          borderRight: index < contactItems.length - 1 ? '1px solid rgba(255, 184, 119, 0.15)' : 'none',
+        });
+        if (item.href) {
+          col.href = item.href;
+          if (item.href.startsWith('http')) {
+            col.target = '_blank';
+            col.rel = 'noopener noreferrer';
+          }
+        }
+
+        const iconWrap = document.createElement('div');
+        Object.assign(iconWrap.style, {
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '8px',
+        });
+        iconWrap.innerHTML = item.icon;
+
+        const label = document.createElement('p');
+        Object.assign(label.style, {
+          fontSize: '12px',
+          fontWeight: '600',
+          color: '#f0dfc0',
+          margin: '0 0 4px',
+        });
+        label.textContent = item.label;
+
+        const value = document.createElement('p');
+        Object.assign(value.style, {
+          fontSize: '11px',
+          color: '#c9b48d',
+          margin: '0',
+          wordBreak: 'break-word',
+        });
+        value.textContent = item.value;
+
+        col.appendChild(iconWrap);
+        col.appendChild(label);
+        col.appendChild(value);
+        contactColumns.appendChild(col);
+      });
+
+      contactContainer.appendChild(contactColumns);
     </script>
     <script>
       import { initScene, addChapterMarkers, setupMarkerInteraction, createPath } from '../experience/Scene.js';
@@ -733,6 +1163,8 @@ import profileData from '../data/melat-tekie.json';
             gap: '12px',
             cursor: 'pointer',
           });
+          header.setAttribute('tabindex', '0');
+          header.setAttribute('role', 'button');
 
           const headerText = document.createElement('div');
           headerText.style.flex = '1';
@@ -799,7 +1231,7 @@ import profileData from '../data/melat-tekie.json';
           narrativeWrap.appendChild(narrative);
 
           let isExpanded = false;
-          header.addEventListener('click', () => {
+          function toggleEntry() {
             isExpanded = !isExpanded;
             toggle.style.transform = isExpanded ? 'rotate(45deg)' : 'rotate(0deg)';
             if (isExpanded) {
@@ -812,6 +1244,14 @@ import profileData from '../data/melat-tekie.json';
               narrativeWrap.style.marginTop = '0';
             }
             clampPanelHeightDeferred();
+          }
+          header.addEventListener('click', toggleEntry);
+          header.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleEntry();
+            }
           });
 
           item.appendChild(header);
@@ -1022,6 +1462,16 @@ import profileData from '../data/melat-tekie.json';
         document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
           btn.classList.toggle('active', i === currentIndex);
         });
+
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        const hasPrev = currentIndex > 0;
+        const hasNext = currentIndex < chapters.length - 1;
+
+        prevBtn.classList.toggle('pulsing', hasPrev);
+        prevBtn.disabled = !hasPrev;
+        nextBtn.classList.toggle('pulsing', hasNext);
+        nextBtn.disabled = !hasNext;
       }
 
       const tapPrompt = document.getElementById('tap-prompt');
@@ -1103,6 +1553,10 @@ import profileData from '../data/melat-tekie.json';
       });
       document.getElementById('nav-next').addEventListener('click', () => {
         goToIndex(currentIndex + 1);
+      });
+
+      document.getElementById('exit-to-simple').addEventListener('click', () => {
+        document.getElementById('simple-view').classList.remove('hidden');
       });
 
       // Loading overlay — brief, masks initial scene setup
